@@ -1,0 +1,24 @@
+﻿Resolving dependencies...
+Downloading packages...
+  matcher 0.12.18 (0.12.19 available)
+  meta 1.17.0 (1.18.1 available)
+  test_api 0.7.9 (0.7.10 available)
+Got dependencies!
+3 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing mobile...                                             
+
+   info - Constructors for public widgets should have a named 'key' parameter - lib\main.dart:26:7 - use_key_in_widget_constructors
+   info - Constructors for public widgets should have a named 'key' parameter - lib\main.dart:45:7 - use_key_in_widget_constructors
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\budgets_screen.dart:3:7 - use_key_in_widget_constructors
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\dashboard_screen.dart:3:7 - use_key_in_widget_constructors
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\login_screen.dart:7:7 - use_key_in_widget_constructors
+   info - Invalid use of a private type in a public API - lib\screens\login_screen.dart:9:3 - library_private_types_in_public_api
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\main_tab_screen.dart:7:7 - use_key_in_widget_constructors
+   info - Invalid use of a private type in a public API - lib\screens\main_tab_screen.dart:9:3 - library_private_types_in_public_api
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\signup_screen.dart:7:7 - use_key_in_widget_constructors
+   info - Invalid use of a private type in a public API - lib\screens\signup_screen.dart:9:3 - library_private_types_in_public_api
+   info - Don't use 'BuildContext's across async gaps - lib\screens\signup_screen.dart:42:20 - use_build_context_synchronously
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\transactions_screen.dart:3:7 - use_key_in_widget_constructors
+  error - The constructor being called isn't a const constructor - test\widget_test.dart:16:29 - const_with_non_const
+

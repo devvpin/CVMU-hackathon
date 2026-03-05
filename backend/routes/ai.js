@@ -1,0 +1,125 @@
+import express from 'express';
+import { GoogleGenAI } from '@google/genai';
+
+const router = express.Router();
+
+// Initialize the Google Gen AI client with the API key from environment
+// We initialize it lazily or check if the key exists to prevent server crashes on startup
+export const getAiClient = () => {
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+        return null; // Key hasn't been configured yet
+    }
+    return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+};
+
+/**
+ * Categorize a raw text transaction into structured data.
+ * POST /api/ai/categorize
+ * Body: { text: "Bought 2 coffees for $12 at Starbucks" }
+ */
+router.post('/categorize', async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ error: 'Text input is required' });
+        }
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+            return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
+        }
+
+        const prompt = `
+            You are an AI assistant for a personal finance app. 
+            Extract the transaction details from the following user input: "${text}"
+            
+            Return ONLY a valid JSON object matching this exact structure:
+            {
+                "amount": number (extract the absolute cost exactly as provided, preserving decimals. Do not round it),
+                "category": string (choose ONE of the following: Food, Transport, Entertainment, Salary, Rent/Mortgage, Utilities, Shopping, Other),
+                "description": string (a short, clean summary of what was bought or earned),
+                "type": string (choose "income" if it implies earning/receiving money, or "expense" if it is spending of money)
+            }
+            Do not include Markdown formatting or \`\`\`json block. Just return raw JSON.
+        `;
+
+        const ai = getAiClient();
+        if (!ai) {
+            return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+
+        const resultText = response.text.trim();
+        // Defensive check in case the LLM returned markdown wrapped JSON
+        const cleanJSON = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        const data = JSON.parse(cleanJSON);
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Error in AI categorization:', error);
+        res.status(500).json({ error: 'Failed to process AI categorization' });
+    }
+});
+
+/**
+ * Get personalized financial insights based on data.
+ * POST /api/ai/insights
+ * Body: { transactions: [...], budgets: [...] }
+ */
+router.post('/insights', async (req, res) => {
+    try {
+        const { transactions, budgets } = req.body;
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+            return res.status(200).json({
+                insight: 'Welcome! To unlock an AI Financial Coach, please provide a Gemini API Key in your backend.'
+            });
+        }
+
+        if (!transactions || transactions.length === 0) {
+            return res.status(200).json({
+                insight: 'Add some transactions so I can analyze your spending habits and provide tips!'
+            });
+        }
+
+        const prompt = `
+            You are a helpful, encouraging Financial Coach AI.
+            Analyze the following user data to provide a very brief (1 or 2 sentences max) insight or tip.
+            
+            Recent Transactions (Summary):
+            ${JSON.stringify(transactions.slice(0, 10))} // Limiting to top 10 for context
+
+            Monthly Budgets Setup:
+            ${JSON.stringify(budgets)}
+
+            Be encouraging and specific. Do not use markdown like bold text. Give direct advice. 
+            Example: "You are spending a lot on Food this month. Consider cooking at home to stay under your $300 budget."
+            
+            Return plain text only.
+        `;
+
+        const ai = getAiClient();
+        if (!ai) {
+            return res.status(200).json({
+                insight: 'Welcome! To unlock an AI Financial Coach, please provide a Gemini API Key in your backend.'
+            });
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+
+        res.status(200).json({ insight: response.text.trim() });
+    } catch (error) {
+        console.error('Error in AI insights:', error);
+        res.status(500).json({ error: 'Failed to generate financial insight' });
+    }
+});
+
+export default router;
