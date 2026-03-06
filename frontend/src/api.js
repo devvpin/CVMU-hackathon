@@ -1,15 +1,17 @@
 import axios from "axios";
 import { auth } from "./firebase";
 
-// For browser on same PC, use localhost.
-// For phone (Capacitor app or phone browser), use the PC's local IP.
-const LOCAL_IP = "192.168.31.121";
-const baseURL = window.location.hostname === 'localhost'
-  ? "http://localhost:5000/api"
-  : `http://${LOCAL_IP}:5000/api`;
+/**
+ * Web production: use same-origin `/api` (backend serves frontend + API).
+ * Web dev (Vite): use proxy configured in `vite.config.js` to forward `/api` to backend.
+ *
+ * If you truly need a different API host (rare), set `VITE_API_BASE_URL`
+ * to something like `https://your-domain.com/api`.
+ */
+const baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 const api = axios.create({
-  baseURL: baseURL,
+  baseURL,
 });
 
 // Add a request interceptor to attach the Firebase token
@@ -28,6 +30,11 @@ api.interceptors.request.use(
 
 export const aiCategorize = async (text) => {
   const response = await api.post("/ai/categorize", { text });
+  return response.data;
+};
+
+export const aiScanReceipt = async (imageBase64, mimeType) => {
+  const response = await api.post("/ai/scan-receipt", { imageBase64, mimeType });
   return response.data;
 };
 

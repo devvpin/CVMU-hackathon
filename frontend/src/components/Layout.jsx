@@ -11,6 +11,9 @@ import {
   FiSun,
   FiMoon,
   FiUser,
+  FiBarChart2,
+  FiCpu,
+  FiShare2,
   FiMenu,
   FiX,
 } from "react-icons/fi";
@@ -57,6 +60,9 @@ const Layout = ({ user }) => {
     { path: "/dashboard", icon: <FiHome />, label: "Home" },
     { path: "/transactions", icon: <FiList />, label: "Transactions" },
     { path: "/budgets", icon: <FiPieChart />, label: "Budgets" },
+    { path: "/split-bills", icon: <FiShare2 />, label: "Split Bill" },
+    { path: "/reports", icon: <FiBarChart2 />, label: "Reports" },
+    { path: "/ai", icon: <FiCpu />, label: "AI Coach" },
     { path: "/profile", icon: <FiUser />, label: "Profile" },
   ];
 

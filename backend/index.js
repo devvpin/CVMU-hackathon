@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 import { verifyToken } from './middleware/auth.js';
 
 dotenv.config();
@@ -33,6 +36,30 @@ app.get('/api/protected', verifyToken, (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+/**
+ * Serve the built web frontend in production.
+ * `npm run build` in `frontend/` creates `frontend/dist`.
+ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+
+// Only serve static assets if the build output exists
+if (fs.existsSync(frontendDistPath)) {
+    app.use(express.static(frontendDistPath));
+
+    // SPA fallback (so direct navigation to /reports, /ai, etc works)
+    app.get('*', (req, res) => {
+        // Do not hijack API routes
+        if (req.path.startsWith('/api')) {
+            return res.status(404).json({ error: 'Not found' });
+        }
+        return res.sendFile(path.join(frontendDistPath, 'index.html'));
+    });
+} else {
+    console.warn(`Frontend build not found at ${frontendDistPath}. Run frontend build to serve the web app.`);
+}
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import { FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
+import { useState, useEffect, useRef } from "react";
+import { FiPlus, FiTrash2, FiEdit2, FiMic, FiCamera } from "react-icons/fi";
 import api from "../api";
+import { sendBudgetAlert } from "../utils/notifications";
 import "./Transactions.css";
 
 const Transactions = ({ user }) => {
@@ -20,6 +21,8 @@ const Transactions = ({ user }) => {
     // AI Smart Add State
     const [smartText, setSmartText] = useState("");
     const [isAiLoading, setIsAiLoading] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -65,11 +68,102 @@ const Transactions = ({ user }) => {
         }
     };
 
+    const handleVoiceInput = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser doesn't support the Speech Recognition API. Try using Chrome.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setSmartText(transcript);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            setIsListening(false);
+            if (event.error !== 'no-speech') {
+                alert(`Microphone error: ${event.error}`);
+            }
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.start();
+    };
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsAiLoading(true);
+        try {
+            const { aiScanReceipt } = await import("../api");
+
+            // Read file as Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64Data = reader.result;
+                const mimeType = file.type;
+
+                // The API expects just the base64 string, so we split off the "data:image/jpeg;base64," prefix
+                const base64Content = base64Data.split(",")[1];
+
+                try {
+                    const data = await aiScanReceipt(base64Content, mimeType);
+
+                    // Auto-fill the form with AI results
+                    setFormData((prev) => ({
+                        ...prev,
+                        amount: data.amount !== undefined ? String(data.amount) : prev.amount,
+                        category: data.category || prev.category,
+                        description: data.description || prev.description,
+                        type: data.type || "expense",
+                    }));
+                } catch (apiError) {
+                    console.error("API Error scanning receipt:", apiError);
+                    alert("Oops! Couldn't scan that receipt.");
+                } finally {
+                    setIsAiLoading(false);
+                    // Reset file input
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                }
+            };
+            reader.onerror = (error) => {
+                console.error("Error reading file:", error);
+                alert("Error reading the image file.");
+                setIsAiLoading(false);
+            };
+        } catch (error) {
+            console.error("Error handling image upload:", error);
+            setIsAiLoading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await api.post("/transactions", formData);
             setTransactions([response.data, ...transactions]);
+
+            // Trigger local notification if it's a large expense
+            if (formData.type === "expense" && Number(formData.amount) >= 500) {
+                sendBudgetAlert(formData.amount, formData.category);
+            }
+
             setShowModal(false);
             // Reset form
             setFormData({
@@ -190,6 +284,42 @@ const Transactions = ({ user }) => {
                                     />
                                     <button
                                         type="button"
+                                        className="btn-icon"
+                                        onClick={handleVoiceInput}
+                                        style={{
+                                            backgroundColor: isListening ? 'var(--color-danger)' : 'var(--color-bg-primary)',
+                                            color: isListening ? '#fff' : 'var(--color-text-primary)',
+                                            border: '1px solid rgba(100, 116, 139, 0.3)',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                        title="Use Voice Input"
+                                    >
+                                        <FiMic />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-icon"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        style={{
+                                            backgroundColor: 'var(--color-bg-primary)',
+                                            color: 'var(--color-text-primary)',
+                                            border: '1px solid rgba(100, 116, 139, 0.3)',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                        title="Scan Receipt"
+                                        disabled={isAiLoading}
+                                    >
+                                        <FiCamera />
+                                    </button>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handleImageUpload}
+                                    />
+                                    <button
+                                        type="button"
                                         className="btn-primary"
                                         onClick={handleSmartAdd}
                                         disabled={isAiLoading || !smartText.trim()}
@@ -201,7 +331,7 @@ const Transactions = ({ user }) => {
                                     className="text-muted"
                                     style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}
                                 >
-                                    Just describe what happened - I'll figure out the rest!
+                                    Just describe what happened - or tap the mic and speak!
                                 </p>
                             </div>
                         </div>
