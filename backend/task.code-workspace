@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "C:/task"
+		},
+		{
+			"path": "../../../PDF"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "task",
+		"liveServer.settings.port": 5501
+	}
+}
