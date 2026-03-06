@@ -1,0 +1,105 @@
+.split-bills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.split-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: var(--space-6);
+}
+
+@media (min-width: 768px) {
+    .split-container {
+        grid-template-columns: 1fr 1fr;
+        align-items: flex-start;
+    }
+}
+
+.split-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: var(--space-3);
+    color: var(--color-text-muted);
+}
+
+.input-with-icon input {
+    padding-left: 2.5rem;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-tertiary);
+    outline: none;
+    margin-top: var(--space-2);
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.split-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+}
+
+.grand-total {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.per-person-box {
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px solid var(--color-primary);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-md);
+    width: 100%;
+}
+
+.per-person-box h4 {
+    margin-bottom: var(--space-2);
+    color: var(--color-text-secondary);
+}
+
+.highlight {
+    font-size: 3rem;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.share-btn {
+    width: 100%;
+    margin-top: var(--space-4);
+}

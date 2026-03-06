@@ -15,6 +15,9 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import Budgets from "./pages/Budgets";
 import Profile from "./pages/Profile";
+import Reports from "./pages/Reports";
+import AiCoach from "./pages/AiCoach";
+import SplitBills from "./pages/SplitBills";
 import Layout from "./components/Layout";
 import { ThemeProvider } from "./context/ThemeContext";
 import "./App.css";
@@ -68,8 +71,13 @@ function App() {
                 element={<Transactions user={user} />}
               />
               <Route path="budgets" element={<Budgets user={user} />} />
+              <Route path="split-bills" element={<SplitBills />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="ai" element={<AiCoach />} />
               <Route path="profile" element={<Profile user={user} />} />
             </Route>
+
+            <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
           </Routes>
         </div>
       </Router>

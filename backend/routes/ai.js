@@ -67,6 +67,67 @@ router.post('/categorize', async (req, res) => {
 });
 
 /**
+ * Scan a receipt image via Multimodal AI and extract transaction data.
+ * POST /api/ai/scan-receipt
+ * Body: { imageBase64: "...", mimeType: "image/jpeg" }
+ */
+router.post('/scan-receipt', async (req, res) => {
+    try {
+        const { imageBase64, mimeType } = req.body;
+
+        if (!imageBase64 || !mimeType) {
+            return res.status(400).json({ error: 'Image data and mimeType are required' });
+        }
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+            return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
+        }
+
+        const prompt = `
+            You are a receipt scanning AI for a personal finance app.
+            Analyze the provided image of a receipt or invoice.
+            
+            Extract the transaction details and return ONLY a valid JSON object matching this exact structure:
+            {
+                "amount": number (the final total cost, preserving decimals. Do not round it),
+                "category": string (choose ONE of the following: Food, Transport, Entertainment, Salary, Rent/Mortgage, Utilities, Shopping, Other),
+                "description": string (the name of the merchant, store, or a quick summary),
+                "type": "expense"
+            }
+            Do not include Markdown formatting or \`\`\`json block. Just return raw JSON. If you cannot read the image, return a best guess or empty strings.
+        `;
+
+        const ai = getAiClient();
+        if (!ai) {
+            return res.status(503).json({ error: 'AI Service is not configured' });
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+                prompt,
+                {
+                    inlineData: {
+                        data: imageBase64,
+                        mimeType: mimeType
+                    }
+                }
+            ],
+        });
+
+        const resultText = response.text.trim();
+        const cleanJSON = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const data = JSON.parse(cleanJSON);
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Error scanning receipt:', error);
+        res.status(500).json({ error: 'Failed to scan receipt' });
+    }
+});
+
+
+/**
  * Get personalized financial insights based on data.
  * POST /api/ai/insights
  * Body: { transactions: [...], budgets: [...] }
