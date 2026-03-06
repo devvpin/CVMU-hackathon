@@ -78,7 +78,7 @@ const autoGenerateBudgets = async (uid, incomeAmount, date) => {
 router.post('/', async (req, res) => {
     try {
         const { uid } = req.user;
-        const { type, amount, category, description, date } = req.body;
+        const { type, amount, category, subcategory, description, note, date, recurring, recurringType } = req.body;
 
         if (!type || !amount || !category || !date) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -91,7 +91,10 @@ router.post('/', async (req, res) => {
             type, // 'income' or 'expense'
             amount: numericAmount,
             category,
-            description: description || '',
+            subcategory: subcategory || '',
+            note: note || description || '', // fallback to description for older clients
+            recurring: !!recurring,
+            recurringType: recurringType || null,
             date, // YYYY-MM-DD format
             createdAt: new Date().toISOString()
         };
