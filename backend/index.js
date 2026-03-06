@@ -9,7 +9,7 @@ import { verifyToken } from './middleware/auth.js';
 // Load .env from project root (parent of backend/)
 const __filename_env = fileURLToPath(import.meta.url);
 const __dirname_env = path.dirname(__filename_env);
-dotenv.config({ path: path.resolve(__dirname_env, '../.env') });
+dotenv.config({ path: path.resolve(__dirname_env, '.env') });
 
 const app = express();
 

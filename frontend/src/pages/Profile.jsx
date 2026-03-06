@@ -171,18 +171,13 @@ const Profile = ({ user }) => {
     setError("");
   };
 
-  if (loading && !profile) {
-    return (
-      <div className="profile-loading">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <h1>My Profile</h1>
+    <div className="page profile-page">
+      <header className="page-header flex-between">
+        <div>
+          <h1>My Profile</h1>
+          <p>Manage your personal information and preferences</p>
+        </div>
         {!editing ? (
           <button className="btn-primary" onClick={() => setEditing(true)}>
             <FiEdit2 /> Edit Profile
@@ -197,74 +192,79 @@ const Profile = ({ user }) => {
             </button>
           </div>
         )}
-      </div>
+      </header>
 
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
       <div className="profile-content">
-        <div className="profile-card glass-panel">
-          <div className="profile-picture-section">
-            <div className="profile-picture-large">
-              {profilePicturePreview ? (
-                <img src={profilePicturePreview} alt="Profile" />
-              ) : (
-                <div className="profile-placeholder">
-                  {profile?.firstName?.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            {editing && (
-              <label htmlFor="profile-pic-edit" className="change-photo-btn">
-                <FiCamera /> Change Photo
-                <input
-                  id="profile-pic-edit"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePictureChange}
-                  style={{ display: "none" }}
-                />
-              </label>
-            )}
-          </div>
-
-          <div className="profile-info">
-            <div className="form-group full-width">
-              <label>Username</label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
-                  className="form-input"
-                />
-              ) : (
-                <div className="info-value">
-                  {profile?.displayUsername}
-                  <span className="info-hint" style={{ display: "block", fontSize: "0.8rem", color: "var(--text-secondary)" }}>Can be changed once per year</span>
-                </div>
+        {/* Profile Picture and Basic Info Card */}
+        <div className="profile-main-card card glass-panel">
+          <div className="profile-main-content">
+            <div className="profile-picture-section">
+              <div className="profile-picture-large">
+                {profilePicturePreview ? (
+                  <img src={profilePicturePreview} alt="Profile" />
+                ) : (
+                  <div className="profile-placeholder">
+                    {profile?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || '?'}
+                  </div>
+                )}
+              </div>
+              {editing && (
+                <label htmlFor="profile-pic-edit" className="change-photo-btn">
+                  <FiCamera /> Change Photo
+                  <input
+                    id="profile-pic-edit"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
               )}
             </div>
 
-            <div className="form-group full-width">
-              <label>Email</label>
-              {editing ? (
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="form-input"
-                />
-              ) : (
-                <div className="info-value">{user?.email}</div>
-              )}
+            <div className="profile-basic-info">
+              <div className="info-group">
+                <label>Username</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
+                    className="form-input"
+                    placeholder="Enter username"
+                  />
+                ) : (
+                  <div className="info-value">
+                    {profile?.displayUsername}
+                    <span className="info-hint">Can be changed once per year</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="info-group">
+                <label>Email Address</label>
+                {editing ? (
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="form-input"
+                    placeholder="Enter email"
+                  />
+                ) : (
+                  <div className="info-value">{user?.email}</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="profile-card glass-panel">
-          <h2>Personal Information</h2>
-
+        {/* Personal Information Card */}
+        <div className="profile-details-card card glass-panel">
+          <h3>Personal Information</h3>
           <div className="form-grid">
             <div className="form-group">
               <label>First Name</label>
@@ -274,9 +274,10 @@ const Profile = ({ user }) => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="form-input"
+                  placeholder="Enter first name"
                 />
               ) : (
-                <div className="info-value">{firstName}</div>
+                <div className="info-value">{firstName || "Not provided"}</div>
               )}
             </div>
 
@@ -288,9 +289,10 @@ const Profile = ({ user }) => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="form-input"
+                  placeholder="Enter last name"
                 />
               ) : (
-                <div className="info-value">{lastName}</div>
+                <div className="info-value">{lastName || "Not provided"}</div>
               )}
             </div>
 
@@ -317,7 +319,7 @@ const Profile = ({ user }) => {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="form-input"
-                  placeholder="Street address"
+                  placeholder="Street address, apartment, etc."
                 />
               ) : (
                 <div className="info-value">{address || "Not provided"}</div>
@@ -332,6 +334,7 @@ const Profile = ({ user }) => {
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
                   className="form-input"
+                  placeholder="123456"
                 />
               ) : (
                 <div className="info-value">{pincode || "Not provided"}</div>
@@ -346,6 +349,7 @@ const Profile = ({ user }) => {
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
                   className="form-input"
+                  placeholder="District name"
                 />
               ) : (
                 <div className="info-value">{district || "Not provided"}</div>
@@ -360,6 +364,7 @@ const Profile = ({ user }) => {
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className="form-input"
+                  placeholder="State name"
                 />
               ) : (
                 <div className="info-value">{state || "Not provided"}</div>
@@ -374,6 +379,7 @@ const Profile = ({ user }) => {
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="form-input"
+                  placeholder="Country name"
                 />
               ) : (
                 <div className="info-value">{country || "Not provided"}</div>

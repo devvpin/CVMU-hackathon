@@ -6,10 +6,15 @@ const router = express.Router();
 // Initialize the Google Gen AI client with the API key from environment
 // We initialize it lazily or check if the key exists to prevent server crashes on startup
 export const getAiClient = () => {
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
-        return null; // Key hasn't been configured yet
+
+    const apiKey = (process.env.GEMINI_API_KEY || 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY').trim();
+ 
+    if (!apiKey) {
+        console.warn('GEMINI_API_KEY not configured or empty after trim');
+        return null;
     }
-    return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    console.log('Initializing GoogleGenAI with key length:', apiKey.length);
+    return new GoogleGenAI({ apiKey });
 };
 
 /**
@@ -25,8 +30,8 @@ router.post('/categorize', async (req, res) => {
             return res.status(400).json({ error: 'Text input is required' });
         }
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
-            return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(503).json({ error: 'AI Service is not configured (GEMINI_API_KEY missing)' });
         }
 
         const prompt = `
@@ -72,15 +77,17 @@ router.post('/categorize', async (req, res) => {
  * Body: { imageBase64: "...", mimeType: "image/jpeg" }
  */
 router.post('/scan-receipt', async (req, res) => {
+    
     try {
         const { imageBase64, mimeType } = req.body;
+        console.log('Request body received - mimeType:', mimeType, ', imageBase64 length:', imageBase64?.length);
 
         if (!imageBase64 || !mimeType) {
             return res.status(400).json({ error: 'Image data and mimeType are required' });
         }
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
-            return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(503).json({ error: 'AI Service is not configured (GEMINI_API_KEY missing)' });
         }
 
         const prompt = `
@@ -98,7 +105,7 @@ router.post('/scan-receipt', async (req, res) => {
         `;
 
         const ai = getAiClient();
-        if (!ai) {
+        if (!ai) {         
             return res.status(503).json({ error: 'AI Service is not configured' });
         }
 
