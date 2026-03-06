@@ -1,8 +1,15 @@
 import axios from "axios";
 import { auth } from "./firebase";
 
+// For browser on same PC, use localhost.
+// For phone (Capacitor app or phone browser), use the PC's local IP.
+const LOCAL_IP = "192.168.31.121";
+const baseURL = window.location.hostname === 'localhost'
+  ? "http://localhost:5000/api"
+  : `http://${LOCAL_IP}:5000/api`;
+
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // Backend URL
+  baseURL: baseURL,
 });
 
 // Add a request interceptor to attach the Firebase token

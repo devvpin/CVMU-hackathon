@@ -11,6 +11,8 @@ import {
   FiSun,
   FiMoon,
   FiUser,
+  FiMenu,
+  FiX,
 } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import "./Layout.css";
@@ -20,6 +22,7 @@ const Layout = ({ user }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [profile, setProfile] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -36,6 +39,11 @@ const Layout = ({ user }) => {
     }
   }, [user]);
 
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -45,9 +53,48 @@ const Layout = ({ user }) => {
     }
   };
 
+  const navItems = [
+    { path: "/dashboard", icon: <FiHome />, label: "Home" },
+    { path: "/transactions", icon: <FiList />, label: "Transactions" },
+    { path: "/budgets", icon: <FiPieChart />, label: "Budgets" },
+    { path: "/profile", icon: <FiUser />, label: "Profile" },
+  ];
+
   return (
     <div className="layout-container">
-      <aside className="sidebar card glass-panel">
+      {/* Mobile Header */}
+      <header className="mobile-header">
+        <div className="mobile-header-left">
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle menu"
+          >
+            {sidebarOpen ? <FiX /> : <FiMenu />}
+          </button>
+          <h2>
+            💰 Money<span className="text-accent">Mate</span>
+          </h2>
+        </div>
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          aria-label="Toggle Theme"
+        >
+          {theme === "dark" ? <FiSun /> : <FiMoon />}
+        </button>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Desktop Sidebar (also used as slide-in on mobile) */}
+      <aside className={`sidebar card glass-panel ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="brand flex-between">
           <h2>
             💰 Money<span className="text-accent">Mate</span>
@@ -62,30 +109,15 @@ const Layout = ({ user }) => {
         </div>
 
         <nav className="nav-menu">
-          <Link
-            to="/dashboard"
-            className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
-          >
-            <FiHome /> <span>Home</span>
-          </Link>
-          <Link
-            to="/transactions"
-            className={`nav-link ${location.pathname === "/transactions" ? "active" : ""}`}
-          >
-            <FiList /> <span>Transactions</span>
-          </Link>
-          <Link
-            to="/budgets"
-            className={`nav-link ${location.pathname === "/budgets" ? "active" : ""}`}
-          >
-            <FiPieChart /> <span>Budgets</span>
-          </Link>
-          <Link
-            to="/profile"
-            className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}
-          >
-            <FiUser /> <span>Profile</span>
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`nav-link ${location.pathname === item.path ? "active" : ""}`}
+            >
+              {item.icon} <span>{item.label}</span>
+            </Link>
+          ))}
         </nav>
 
         <div className="user-section">
@@ -108,6 +140,24 @@ const Layout = ({ user }) => {
       <main className="main-content">
         <Outlet />
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="bottom-nav">
+        {navItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`bottom-nav-item ${location.pathname === item.path ? "active" : ""}`}
+          >
+            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-label">{item.label}</span>
+          </Link>
+        ))}
+        <button className="bottom-nav-item logout-nav-item" onClick={handleLogout}>
+          <span className="bottom-nav-icon"><FiLogOut /></span>
+          <span className="bottom-nav-label">Logout</span>
+        </button>
+      </nav>
     </div>
   );
 };

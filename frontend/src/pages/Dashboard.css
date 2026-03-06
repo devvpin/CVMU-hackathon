@@ -107,4 +107,20 @@
     align-items: flex-start;
     gap: var(--space-4);
   }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  .chart-card {
+    padding: var(--space-4);
+  }
+
+  .summary-card {
+    padding: var(--space-4);
+  }
+
+  .ai-coach-widget {
+    margin: 1rem 0 !important;
+  }
 }
