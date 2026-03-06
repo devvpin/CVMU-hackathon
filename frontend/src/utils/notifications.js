@@ -22,25 +22,47 @@ export const requestNotificationPermission = async () => {
  * Web browser support depends on the Capacitor PWA elements / native platform.
  */
 export const sendBudgetAlert = async (amount, category) => {
-    const hasPermission = await requestNotificationPermission();
-    if (!hasPermission) return;
+    const title = "⚠️ Budget Alert";
+    const body = `You just logged $${amount} for ${category}. Keep an eye on your budget!`;
 
-    try {
-        await LocalNotifications.schedule({
-            notifications: [
-                {
-                    title: "⚠️ High Expense Alert",
-                    body: `You just logged $${amount} for ${category}. Keep an eye on your budget!`,
-                    id: new Date().getTime(), // unique ID
-                    schedule: { at: new Date(Date.now() + 1000) }, // 1 second from now
-                    sound: null,
-                    attachments: null,
-                    actionTypeId: "",
-                    extra: null
-                }
-            ]
-        });
-    } catch (error) {
-        console.error("Failed to schedule notification:", error);
+    // 1. Try native Web Notification API first (Best for desktop browsers & standard PWA testing)
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+            new Notification(title, { body });
+            return;
+        } else if (Notification.permission !== 'denied') {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                new Notification(title, { body });
+                return;
+            }
+        }
     }
+
+    // 2. Try Capacitor Local Notifications (Best for compiled mobile environments)
+    try {
+        const hasPermission = await requestNotificationPermission();
+        if (hasPermission) {
+            await LocalNotifications.schedule({
+                notifications: [
+                    {
+                        title,
+                        body,
+                        id: Math.floor(Math.random() * 2147483647), // unique 32-bit integer ID
+                        schedule: { at: new Date(Date.now() + 100) }, // schedule almost instantly
+                        sound: null,
+                        attachments: null,
+                        actionTypeId: "",
+                        extra: null
+                    }
+                ]
+            });
+            return;
+        }
+    } catch (error) {
+        console.warn("Capacitor notification failed:", error);
+    }
+
+    // 3. Final Fallback (If notifications are completely blocked/unsupported)
+    alert(`${title}\n\n${body}`);
 };
