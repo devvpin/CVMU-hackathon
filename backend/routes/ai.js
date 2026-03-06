@@ -36,8 +36,8 @@ router.post('/categorize', async (req, res) => {
             Return ONLY a valid JSON object matching this exact structure:
             {
                 "amount": number (extract the absolute cost exactly as provided, preserving decimals. Do not round it),
-                "category": string (choose ONE of the following: Food, Transport, Entertainment, Salary, Rent/Mortgage, Utilities, Shopping, Other),
-                "description": string (a short, clean summary of what was bought or earned),
+                "category": string (If income, choose from: Paycheck, Rental Income, Business Profit, Investment Income, Other Income. If expense, choose from: Food, Travel, Shopping, Bills, Rent, EMI / Loan, Entertainment, Other),
+                "note": string (a short, clean summary of what was bought or earned),
                 "type": string (choose "income" if it implies earning/receiving money, or "expense" if it is spending of money)
             }
             Do not include Markdown formatting or \`\`\`json block. Just return raw JSON.
@@ -90,9 +90,9 @@ router.post('/scan-receipt', async (req, res) => {
             Extract the transaction details and return ONLY a valid JSON object matching this exact structure:
             {
                 "amount": number (the final total cost, preserving decimals. Do not round it),
-                "category": string (choose ONE of the following: Food, Transport, Entertainment, Salary, Rent/Mortgage, Utilities, Shopping, Other),
-                "description": string (the name of the merchant, store, or a quick summary),
-                "type": "expense"
+                "category": string (If income, choose from: Paycheck, Rental Income, Business Profit, Investment Income, Other Income. If expense, choose from: Food, Travel, Shopping, Bills, Rent, EMI / Loan, Entertainment, Other),
+                "note": string (the name of the merchant, store, or a quick summary),
+                "type": string (choose "income" if it implies earning/receiving money, or "expense" if it is spending of money)
             }
             Do not include Markdown formatting or \`\`\`json block. Just return raw JSON. If you cannot read the image, return a best guess or empty strings.
         `;

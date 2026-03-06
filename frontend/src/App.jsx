@@ -12,7 +12,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transactions";
+import Income from "./pages/Income";
+import Expense from "./pages/Expense";
 import Budgets from "./pages/Budgets";
 import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
@@ -66,10 +67,8 @@ function App() {
             >
               <Route index element={<Navigate to="/dashboard" />} />
               <Route path="dashboard" element={<Dashboard user={user} />} />
-              <Route
-                path="transactions"
-                element={<Transactions user={user} />}
-              />
+              <Route path="income" element={<Income user={user} />} />
+              <Route path="expense" element={<Expense user={user} />} />
               <Route path="budgets" element={<Budgets user={user} />} />
               <Route path="split-bills" element={<SplitBills />} />
               <Route path="reports" element={<Reports />} />

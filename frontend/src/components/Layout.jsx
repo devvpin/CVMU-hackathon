@@ -6,7 +6,8 @@ import { getUserProfile } from "../api";
 import {
   FiHome,
   FiPieChart,
-  FiList,
+  FiTrendingUp,
+  FiTrendingDown,
   FiLogOut,
   FiSun,
   FiMoon,
@@ -58,7 +59,8 @@ const Layout = ({ user }) => {
 
   const navItems = [
     { path: "/dashboard", icon: <FiHome />, label: "Home" },
-    { path: "/transactions", icon: <FiList />, label: "Transactions" },
+    { path: "/income", icon: <FiTrendingUp />, label: "Income" },
+    { path: "/expense", icon: <FiTrendingDown />, label: "Expenses" },
     { path: "/budgets", icon: <FiPieChart />, label: "Budgets" },
     { path: "/split-bills", icon: <FiShare2 />, label: "Split Bill" },
     { path: "/reports", icon: <FiBarChart2 />, label: "Reports" },
