@@ -164,7 +164,7 @@ const Transactions = ({ user }) => {
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal card glass-panel">
-                        <h3>Log a transaction ✏️</h3>
+                        <h3>Insert transaction ✏️</h3>
 
                         {/* Smart Add AI Section */}
                         <div className="smart-add-section" style={{ marginBottom: '1rem', padding: '1rem', background: 'var(--color-bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
@@ -260,14 +260,14 @@ const Transactions = ({ user }) => {
                                         setFormData({ ...formData, category: e.target.value })
                                     }
                                 >
-                                    <option value="Food">\ud83c\udf54 Food</option>
-                                    <option value="Transport">\ud83d\ude97 Transport</option>
-                                    <option value="Entertainment">\ud83c\udfac Entertainment</option>
-                                    <option value="Salary">\ud83d\udcbc Salary</option>
-                                    <option value="Rent/Mortgage">\ud83c\udfe0 Rent/Mortgage</option>
-                                    <option value="Utilities">\ud83d\udca1 Utilities</option>
-                                    <option value="Shopping">\ud83d\udecd\ufe0f Shopping</option>
-                                    <option value="Other">\ud83d\udccc Other</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Rent/Mortgage">Rent/Mortgage</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                             <div className="form-group">
