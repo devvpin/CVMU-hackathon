@@ -146,7 +146,9 @@ const Signup = () => {
       navigate("/dashboard");
     } catch (err) {
       console.error("Signup error:", err);
-      setError("Something went wrong creating your account. Give it another shot!");
+      const apiError = err.response?.data?.error;
+      const firebaseError = err.message;
+      setError(`Signup failed: ${apiError || firebaseError || 'Something went wrong. Give it another shot!'}`);
     } finally {
       setLoading(false);
     }
