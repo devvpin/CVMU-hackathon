@@ -9,6 +9,7 @@ const INCOME_CATEGORIES = ["Salary", "Earned Extra", "Freelance", "Someone Gifte
 
 const Transactions = ({ user }) => {
     const [transactions, setTransactions] = useState([]);
+    const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
@@ -23,6 +24,7 @@ const Transactions = ({ user }) => {
         category: "Food",
         description: "",
         date: new Date().toISOString().split("T")[0],
+        walletId: "",
     });
 
     // AI Smart Add State
@@ -32,19 +34,23 @@ const Transactions = ({ user }) => {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        const fetchTransactions = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get("/transactions");
-                setTransactions(response.data);
+                const [transRes, walletsRes] = await Promise.all([
+                    api.get("/transactions"),
+                    api.get("/wallets")
+                ]);
+                setTransactions(transRes.data);
+                setWallets(walletsRes.data);
             } catch (error) {
-                console.error("Error fetching transactions:", error);
+                console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
         };
 
         if (user) {
-            fetchTransactions();
+            fetchData();
         }
     }, [user]);
 
@@ -202,6 +208,7 @@ const Transactions = ({ user }) => {
                 category: "Food",
                 description: "",
                 date: new Date().toISOString().split("T")[0],
+                walletId: wallets.length > 0 ? wallets[0].id : "",
             });
         } catch (error) {
             console.error("Error adding transaction:", error);
@@ -295,6 +302,7 @@ const Transactions = ({ user }) => {
                                 <th>Date</th>
                                 <th>Description</th>
                                 <th>Category</th>
+                                <th>Wallet</th>
                                 <th>Amount</th>
                                 <th>Actions</th>
                             </tr>
@@ -306,6 +314,9 @@ const Transactions = ({ user }) => {
                                     <td>{t.description}</td>
                                     <td>
                                         <span className="category-badge">{t.category}</span>
+                                    </td>
+                                    <td>
+                                        {t.walletId ? wallets.find(w => w.id === t.walletId)?.name || 'Unknown' : '-'}
                                     </td>
                                     <td
                                         className={
@@ -429,6 +440,21 @@ const Transactions = ({ user }) => {
                                     }
                                     required
                                 />
+                            </div>
+                            <div className="form-group">
+                                <label>Wallet/Account</label>
+                                <select
+                                    value={formData.walletId}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, walletId: e.target.value })
+                                    }
+                                    required
+                                >
+                                    {wallets.length === 0 && <option value="" disabled>No wallets available</option>}
+                                    {wallets.map((w) => (
+                                        <option key={w.id} value={w.id}>{w.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>Money in or out?</label>

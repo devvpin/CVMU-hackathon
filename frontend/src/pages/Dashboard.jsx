@@ -25,6 +25,7 @@ const Dashboard = ({ user }) => {
     totalExpense: 0,
     categoryBreakdown: [],
   });
+  const [totalWalletBalance, setTotalWalletBalance] = useState(0);
 
   const [monthlyData, setMonthlyData] = useState([]);
   const [aiInsight, setAiInsight] = useState("");
@@ -53,8 +54,13 @@ const Dashboard = ({ user }) => {
         });
 
         // 2. Fetch all transactions to build the monthly trend BarChart
-        const transRes = await api.get("/transactions");
+        const [transRes, walletsRes] = await Promise.all([
+          api.get("/transactions"),
+          api.get("/wallets")
+        ]);
         const transactions = transRes.data;
+        const totalW = walletsRes.data.reduce((sum, w) => sum + (Number(w.balance) || 0), 0);
+        setTotalWalletBalance(totalW);
 
         // Group by month
         const monthlyMap = {};
@@ -133,8 +139,8 @@ const Dashboard = ({ user }) => {
             <FiDollarSign />
           </div>
           <div className="summary-details">
-            <h3>You've got</h3>
-            <p>₹{summary.balance.toLocaleString()}</p>
+            <h3>Total Balance</h3>
+            <p>₹{totalWalletBalance.toLocaleString()}</p>
           </div>
         </div>
 

@@ -19,6 +19,8 @@ import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
 import AiCoach from "./pages/AiCoach";
 import SplitBills from "./pages/SplitBills";
+import Wallets from "./pages/Wallets";
+import Transfers from "./pages/Transfers";
 import Layout from "./components/Layout";
 import { ThemeProvider } from "./context/ThemeContext";
 import "./App.css";
@@ -60,7 +62,6 @@ function App() {
               path="/forgot-password"
               element={!user ? <ForgotPassword /> : <Navigate to="/dashboard" />}
             />
-
             <Route
               path="/"
               element={user ? <Layout user={user} /> : <Navigate to="/login" />}
@@ -73,6 +74,8 @@ function App() {
               <Route path="split-bills" element={<SplitBills />} />
               <Route path="reports" element={<Reports />} />
               <Route path="ai" element={<AiCoach />} />
+              <Route path="wallets" element={<Wallets user={user} />} />
+              <Route path="transfers" element={<Transfers user={user} />} />
               <Route path="profile" element={<Profile user={user} />} />
             </Route>
 

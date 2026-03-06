@@ -1,0 +1,81 @@
+.wallets-kpi {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.wallets-kpi .kpi-label {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.wallets-kpi .kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.wallets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.wallet-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.wallet-header {
+    align-items: flex-start;
+}
+
+.wallet-icon-title {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.wallet-icon {
+    font-size: 2rem;
+    background: var(--color-bg-secondary);
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wallet-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+}
+
+.wallet-info span {
+    font-size: 0.85rem;
+}
+
+.wallet-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.wallet-balance {
+    background: var(--color-bg-tertiary);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-top: auto;
+}
+
+.balance-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.balance-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+}

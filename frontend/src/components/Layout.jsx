@@ -17,6 +17,8 @@ import {
   FiShare2,
   FiMenu,
   FiX,
+  FiCreditCard,
+  FiRefreshCw,
 } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import "./Layout.css";
@@ -61,6 +63,8 @@ const Layout = ({ user }) => {
     { path: "/dashboard", icon: <FiHome />, label: "Home" },
     { path: "/income", icon: <FiTrendingUp />, label: "Income" },
     { path: "/expense", icon: <FiTrendingDown />, label: "Expenses" },
+    { path: "/wallets", icon: <FiCreditCard />, label: "Wallets" },
+    { path: "/transfers", icon: <FiRefreshCw />, label: "Transfers" },
     { path: "/budgets", icon: <FiPieChart />, label: "Budgets" },
     { path: "/split-bills", icon: <FiShare2 />, label: "Split Bill" },
     { path: "/reports", icon: <FiBarChart2 />, label: "Reports" },
@@ -151,7 +155,7 @@ const Layout = ({ user }) => {
 
       {/* Mobile Bottom Navigation */}
       <nav className="bottom-nav">
-        {navItems.map((item) => (
+        {navItems.filter(item => ["/dashboard", "/income", "/expense", "/wallets"].includes(item.path)).map((item) => (
           <Link
             key={item.path}
             to={item.path}
@@ -161,9 +165,9 @@ const Layout = ({ user }) => {
             <span className="bottom-nav-label">{item.label}</span>
           </Link>
         ))}
-        <button className="bottom-nav-item logout-nav-item" onClick={handleLogout}>
-          <span className="bottom-nav-icon"><FiLogOut /></span>
-          <span className="bottom-nav-label">Logout</span>
+        <button className="bottom-nav-item" onClick={() => setSidebarOpen(true)}>
+          <span className="bottom-nav-icon"><FiMenu /></span>
+          <span className="bottom-nav-label">Menu</span>
         </button>
       </nav>
     </div>

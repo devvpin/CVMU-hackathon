@@ -21,12 +21,13 @@ import budgetsRouter from './routes/budgets.js';
 import reportsRouter from './routes/reports.js';
 import aiRouter from './routes/ai.js';
 import usersRouter from './routes/users.js';
-
+import walletsRouter from './routes/wallets.js';
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/budgets', budgetsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/wallets', walletsRouter);
 
 // Routes will be mounted here
 app.get('/api/health', (req, res) => {
@@ -64,6 +65,6 @@ if (fs.existsSync(frontendDistPath)) {
     console.warn(`Frontend build not found at ${frontendDistPath}. Run frontend build to serve the web app.`);
 }
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT} (accessible on local network)`);
 });

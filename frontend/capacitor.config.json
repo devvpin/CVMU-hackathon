@@ -1,5 +1,9 @@
 {
   "appId": "com.safetrack.app",
   "appName": "SafeTrack",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "url": "http://172.16.6.52:5173",
+    "cleartext": true
+  }
 }

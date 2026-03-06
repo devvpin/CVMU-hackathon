@@ -18,14 +18,7 @@
   color: var(--color-text-secondary);
 }
 
-.reports-toolbar select {
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(15, 23, 42, 0.6);
-  color: var(--color-text-primary);
-  outline: none;
-}
+
 
 .reports-error {
   padding: 1rem;
@@ -65,9 +58,8 @@
   .reports-kpis {
     grid-template-columns: 1fr;
   }
+
   .reports-charts {
     grid-template-columns: 1fr;
   }
 }
-
-

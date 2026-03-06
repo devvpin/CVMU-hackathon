@@ -1,41 +1,39 @@
 import { useState, useEffect, useRef } from "react";
-import { FiPlus, FiTrash2, FiMic, FiCamera } from "react-icons/fi";
+import { FiTrash2, FiMic, FiCamera, FiCoffee, FiMapPin, FiShoppingBag, FiFileText, FiHome, FiCreditCard, FiTv, FiMoreHorizontal, FiTrendingDown } from "react-icons/fi";
 import api from "../api";
-import { sendBudgetAlert } from "../utils/notifications";
-import "./Transactions.css"; // Reuse existing css
+import "./Expense.css";
 
 const EXPENSE_CATEGORIES = [
-    { name: "Food", icon: "🍔" },
-    { name: "Travel", icon: "🚗" },
-    { name: "Shopping", icon: "🛍️" },
-    { name: "Bills", icon: "🧾" },
-    { name: "Rent", icon: "🏠" },
-    { name: "EMI / Loan", icon: "🏦" },
-    { name: "Entertainment", icon: "🎬" },
-    { name: "Other", icon: "📌" }
+    { id: "Food", icon: <FiCoffee />, label: "Food" },
+    { id: "Travel", icon: <FiMapPin />, label: "Travel" },
+    { id: "Shopping", icon: <FiShoppingBag />, label: "Shopping" },
+    { id: "Bills", icon: <FiFileText />, label: "Bills" },
+    { id: "Rent", icon: <FiHome />, label: "Rent" },
+    { id: "EMI / Loan", icon: <FiCreditCard />, label: "EMI / Loan" },
+    { id: "Entertainment", icon: <FiTv />, label: "Entertainment" },
+    { id: "Other", icon: <FiMoreHorizontal />, label: "Other" }
 ];
 
 const Expense = ({ user }) => {
-    const [transactions, setTransactions] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
-        type: "expense",
         amount: "",
         category: "Food",
-        subcategory: "",
-        note: "",
         date: new Date().toISOString().split("T")[0],
+        walletId: "",
+        note: "",
         recurring: false,
-        recurringType: "monthly"
-    });
-
-    const [extraFields, setExtraFields] = useState({
-        restaurantStore: "",
-        transportType: "",
-        destination: ""
+        recurringType: "monthly",
+        // Metadata fields
+        restaurant: "",
+        transportType: "uber",
+        destination: "",
+        billProvider: "",
     });
 
     // AI Smart Add State
@@ -45,30 +43,32 @@ const Expense = ({ user }) => {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        const fetchTransactions = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get("/transactions");
+                const [transRes, walletsRes] = await Promise.all([
+                    api.get("/transactions"),
+                    api.get("/wallets")
+                ]);
+
                 // Filter only expenses
-                setTransactions(response.data.filter(t => t.type === "expense"));
+                const expenseData = transRes.data.filter(t => t.type === "expense");
+                setExpenses(expenseData);
+                setWallets(walletsRes.data);
             } catch (error) {
-                console.error("Error fetching transactions:", error);
+                console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
         };
 
         if (user) {
-            fetchTransactions();
+            fetchData();
         }
     }, [user]);
 
-    const handleCategoryClick = (categoryName) => {
-        setFormData(prev => ({ ...prev, category: categoryName }));
-        setShowModal(true);
-    };
-
     const handleSmartAdd = async (e) => {
-        e.preventDefault();
+        if (e.type === "keydown" && e.key !== "Enter") return;
+
         if (!smartText.trim()) return;
 
         setIsAiLoading(true);
@@ -76,8 +76,8 @@ const Expense = ({ user }) => {
             const { aiCategorize } = await import("../api");
             const data = await aiCategorize(smartText);
 
-            if (data.type === 'income') {
-                alert("AI detected an Income! Please log this on the Income page.");
+            if (data.type === "income") {
+                alert("AI detected this as an income! Please log it on the Income page.");
                 return;
             }
 
@@ -85,23 +85,22 @@ const Expense = ({ user }) => {
                 ...prev,
                 amount: data.amount !== undefined ? String(data.amount) : prev.amount,
                 category: data.category || prev.category,
-                note: data.note || prev.note || "",
+                note: data.note || prev.note,
             }));
-
-            setSmartText("");
             setShowModal(true);
         } catch (error) {
-            console.error("Error with Smart Add:", error);
-            alert("Oops! Couldn't analyze that. Check your AI setup.");
+            console.error("API Error categorization:", error);
+            alert("Oops! Couldn't parse that.");
         } finally {
             setIsAiLoading(false);
+            setSmartText("");
         }
     };
 
     const handleVoiceInput = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Sorry, your browser doesn't support the Speech Recognition API. Try using Chrome.");
+            alert("Sorry, your browser doesn't support the Speech Recognition API.");
             return;
         }
 
@@ -110,27 +109,14 @@ const Expense = ({ user }) => {
         recognition.interimResults = false;
         recognition.lang = 'en-US';
 
-        recognition.onstart = () => {
-            setIsListening(true);
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            setSmartText(transcript);
-        };
-
+        recognition.onstart = () => setIsListening(true);
+        recognition.onresult = (event) => setSmartText(event.results[0][0].transcript);
         recognition.onerror = (event) => {
-            console.error("Speech recognition error:", event.error);
+            console.error("Speech error:", event.error);
             setIsListening(false);
-            if (event.error !== 'no-speech') {
-                alert(`Microphone error: ${event.error}`);
-            }
+            if (event.error !== 'no-speech') alert(`Microphone error: ${event.error}`);
         };
-
-        recognition.onend = () => {
-            setIsListening(false);
-        };
-
+        recognition.onend = () => setIsListening(false);
         recognition.start();
     };
 
@@ -141,19 +127,15 @@ const Expense = ({ user }) => {
         setIsAiLoading(true);
         try {
             const { aiScanReceipt } = await import("../api");
-
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
-                const base64Data = reader.result;
-                const mimeType = file.type;
-                const base64Content = base64Data.split(",")[1];
-
+                const base64Content = reader.result.split(",")[1];
                 try {
-                    const data = await aiScanReceipt(base64Content, mimeType);
+                    const data = await aiScanReceipt(base64Content, file.type);
 
-                    if (data.type === 'income') {
-                        alert("AI detected an Income! Please log this on the Income page.");
+                    if (data.type === "income") {
+                        alert("AI detected this as an income! Please log it on the Income page.");
                         return;
                     }
 
@@ -161,148 +143,143 @@ const Expense = ({ user }) => {
                         ...prev,
                         amount: data.amount !== undefined ? String(data.amount) : prev.amount,
                         category: data.category || prev.category,
-                        note: data.note || prev.note || "",
+                        note: data.note || prev.note,
                     }));
                     setShowModal(true);
                 } catch (apiError) {
-                    console.error("API Error scanning receipt:", apiError);
-                    alert("Oops! Couldn't scan that receipt.");
+                    console.error("API Error:", apiError);
+                    alert("Couldn't scan that receipt.");
                 } finally {
                     setIsAiLoading(false);
                     if (fileInputRef.current) fileInputRef.current.value = "";
                 }
             };
-            reader.onerror = (error) => {
-                console.error("Error reading file:", error);
-                alert("Error reading the image file.");
-                setIsAiLoading(false);
-            };
         } catch (error) {
-            console.error("Error handling image upload:", error);
+            console.error("Image upload error:", error);
             setIsAiLoading(false);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        let finalSubcategory = formData.subcategory;
-        if (formData.category === "Food") {
-            finalSubcategory = extraFields.restaurantStore;
-        } else if (formData.category === "Travel") {
-            finalSubcategory = `Transport: ${extraFields.transportType}, Dest: ${extraFields.destination}`;
-        }
-
-        const submitData = {
-            ...formData,
-            subcategory: finalSubcategory
-        };
-
         try {
-            const response = await api.post("/transactions", submitData);
-            setTransactions([response.data, ...transactions]);
+            const payload = {
+                type: "expense",
+                amount: formData.amount,
+                category: formData.category,
+                date: formData.date,
+                walletId: formData.walletId || null,
+                note: formData.note,
+                recurring: formData.recurring,
+                recurringType: formData.recurring ? formData.recurringType : null,
 
+                // Metadata
+                restaurant: formData.category === "Food" ? formData.restaurant : undefined,
+                transportType: formData.category === "Travel" ? formData.transportType : undefined,
+                destination: formData.category === "Travel" ? formData.destination : undefined,
+                billProvider: (formData.category === "Bills" || formData.category === "EMI / Loan") ? formData.billProvider : undefined,
+            };
+
+            const response = await api.post("/transactions", payload);
+            setExpenses([response.data, ...expenses]);
+
+            // Trigger local notification if it's a large expense
             if (Number(formData.amount) >= 500) {
+                const { sendBudgetAlert } = await import("../utils/notifications");
                 sendBudgetAlert(formData.amount, formData.category);
             }
 
-            setShowModal(false);
-            setFormData({
-                type: "expense",
-                amount: "",
-                category: "Food",
-                subcategory: "",
-                note: "",
-                date: new Date().toISOString().split("T")[0],
-                recurring: false,
-                recurringType: "monthly"
-            });
-            setExtraFields({ restaurantStore: "", transportType: "", destination: "" });
+            closeModal();
         } catch (error) {
             console.error("Error adding expense:", error);
-            alert("Hmm, couldn't save that. Is your backend running?");
+            alert("Couldn't save that expense.");
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Delete this expense entry? You can't undo this!")) {
+        if (window.confirm("Delete this expense entry?")) {
             try {
                 await api.delete(`/transactions/${id}`);
-                setTransactions(transactions.filter((t) => t.id !== id));
+                setExpenses(expenses.filter((t) => t.id !== id));
             } catch (error) {
                 console.error("Error deleting:", error);
             }
         }
     };
 
-    const totalExpense = transactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const closeModal = () => {
+        setShowModal(false);
+        setFormData({
+            amount: "",
+            category: "Food",
+            date: new Date().toISOString().split("T")[0],
+            walletId: wallets.length > 0 ? wallets[0].id : "",
+            note: "",
+            recurring: false,
+            recurringType: "monthly",
+            restaurant: "",
+            transportType: "uber",
+            destination: "",
+            billProvider: "",
+        });
+    };
+
+    const totalExpense = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
 
     return (
-        <div className="page transactions">
+        <div className="page expense-page">
             <header className="page-header flex-between">
                 <div>
                     <h1>Expenses 💸</h1>
-                    <p>Track where your money is going</p>
+                    <p>Track where your money goes</p>
                 </div>
             </header>
 
-            {/* Expense Summary Card */}
-            <div className="card glass-panel" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h3 className="text-muted">Total Money Spent</h3>
-                <h2 className="text-danger" style={{ fontSize: '2.5rem', margin: '0.5rem 0' }}>
-                    -${totalExpense.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-                </h2>
+            <div className="expense-summary card glass-panel" style={{ padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid var(--border-subtle)' }}>
+                <h3 style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', fontWeight: '600' }}>Total Managed Expense</h3>
+                <p className="text-danger" style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>-₹{totalExpense.toLocaleString()}</p>
             </div>
 
-            {/* AI Magic Quick Add */}
-            <div className="card glass-panel" style={{ marginBottom: '2rem' }}>
-                <div className="smart-add-section">
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label className="text-accent flex-center" style={{ justifyContent: "flex-start", gap: "0.5rem", marginBottom: "0.5rem", color: "var(--color-danger)" }}>
-                            ✨ Quick Add Expense (AI magic!)
+            <div className="ai-quick-add card glass-panel" style={{ marginBottom: "2rem", padding: '1.5rem', border: '1px solid var(--border-subtle)' }}>
+                <div className="ai-content">
+                    <div className="ai-header">
+                        <h3 style={{ color: '#e14d4d', fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', letterSpacing: '0.5px' }}>
+                            ✨ QUICK ADD EXPENSE (AI MAGIC!)
+                        </h3>
+                    </div>
+                    <div className="ai-input-group">
+                        <label className="visually-hidden" htmlFor="ai-input">
+                            Describe your expense
                         </label>
                         <div style={{ display: "flex", gap: "0.5rem" }}>
                             <input
+                                id="ai-input"
                                 type="text"
-                                placeholder="e.g. Paid $200 for lunch"
+                                placeholder="e.g. Spent ₹500 on an Uber to the office"
                                 value={smartText}
                                 onChange={(e) => setSmartText(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSmartAdd(e)}
+                                onKeyDown={handleSmartAdd}
+                                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}
                             />
                             <button
                                 type="button"
                                 className="btn-icon"
                                 onClick={handleVoiceInput}
-                                style={{
-                                    backgroundColor: isListening ? 'var(--color-danger)' : 'var(--color-bg-primary)',
-                                    color: isListening ? '#fff' : 'var(--color-text-primary)'
-                                }}
-                                title="Use Voice Input"
-                            >
-                                <FiMic />
-                            </button>
+                                style={{ color: isListening ? 'var(--color-danger)' : 'var(--color-text-secondary)', background: 'transparent' }}
+                            ><FiMic size={18} /></button>
                             <button
                                 type="button"
                                 className="btn-icon"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isAiLoading}
-                                title="Scan Receipt/Invoice"
-                            >
-                                <FiCamera />
-                            </button>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                style={{ display: 'none' }}
-                                onChange={handleImageUpload}
-                            />
+                                style={{ color: 'var(--color-text-secondary)', background: 'transparent' }}
+                            ><FiCamera size={18} /></button>
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImageUpload} />
                             <button
                                 type="button"
-                                className="btn-primary"
+                                className="btn-ai-fill"
                                 onClick={handleSmartAdd}
                                 disabled={isAiLoading || !smartText.trim()}
-                                style={{ backgroundColor: 'var(--color-danger)' }}
                             >
                                 {isAiLoading ? "Thinking..." : "Fill it in"}
                             </button>
@@ -310,117 +287,110 @@ const Expense = ({ user }) => {
                     </div>
                 </div>
             </div>
-
-            {/* Category Grid */}
-            <h3 style={{ marginBottom: '1rem' }}>Add New Expense</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ marginBottom: "1rem" }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Add New Expense</h3>
+            </div>
+            <div className="expense-categories-grid">
                 {EXPENSE_CATEGORIES.map(cat => (
-                    <button 
-                        key={cat.name} 
-                        className="card glass-panel flex-center flex-col" 
-                        style={{ padding: '1.5rem 1rem', cursor: 'pointer', border: '1px solid var(--border-subtle)', transition: 'all 0.2s ease', background: 'var(--color-bg-secondary)' }}
-                        onClick={() => handleCategoryClick(cat.name)}
+                    <button
+                        key={cat.id}
+                        className="category-btn"
+                        onClick={() => {
+                            setFormData({ ...formData, category: cat.id, walletId: wallets.length > 0 ? wallets[0].id : "" });
+                            setShowModal(true);
+                        }}
                     >
-                        <span style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{cat.icon}</span>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{cat.name}</span>
+                        <span className="category-icon text-danger">{cat.icon}</span>
+                        <span className="category-label">{cat.label}</span>
                     </button>
                 ))}
             </div>
 
-            <div className="card glass-panel transactions-container">
-                <h3 style={{ marginBottom: '1rem' }}>Expense History</h3>
+
+            <div className="card glass-panel expense-list-container">
+                <h3>Expense History</h3>
                 {loading ? (
-                    <div className="flex-center" style={{ padding: "2rem" }}>
-                        Fetching your expenses...
-                    </div>
-                ) : transactions.length === 0 ? (
-                    <div className="flex-center text-muted" style={{ padding: "2rem" }}>
-                        🌱 No expenses logged yet! 
-                    </div>
+                    <div className="flex-center" style={{ padding: "2rem" }}>Loading...</div>
+                ) : expenses.length === 0 ? (
+                    <div className="flex-center text-muted" style={{ padding: "2rem" }}>No expenses logged yet.</div>
                 ) : (
-                    <table className="transactions-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th>Category</th>
-                                <th>Amount</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {transactions.map((t) => (
-                                <tr key={t.id}>
-                                    <td>{new Date(t.date).toLocaleDateString()}</td>
-                                    <td>
-                                        <div>{t.note || t.description || "N/A"}</div>
-                                        {t.subcategory && <div style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>{t.subcategory}</div>}
-                                        {t.recurring && <span className="category-badge" style={{ marginTop: '4px', fontSize: '0.7em', background: 'var(--color-danger)', color: 'white' }}>Recurring {t.recurringType}</span>}
-                                    </td>
-                                    <td>
-                                        <span className="category-badge">{t.category}</span>
-                                    </td>
-                                    <td className="text-danger">
-                                        -${Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="actions-cell">
-                                        <button
-                                            className="btn-icon text-danger"
-                                            onClick={() => handleDelete(t.id)}
-                                        >
-                                            <FiTrash2 />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div className="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {expenses.map((t) => (
+                            <div key={t.id} className="transaction-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', borderRadius: '12px', background: 'var(--color-bg-primary)', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.02)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div className="category-icon-bg" style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                                        {EXPENSE_CATEGORIES.find(c => c.id === t.category)?.icon || '💸'}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontWeight: '600', color: 'var(--color-text-primary)' }}>{t.category}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                                            <span>
+                                                {t.category === 'Food' && t.metadata?.restaurant ? t.metadata.restaurant :
+                                                    t.category === 'Travel' && t.metadata?.destination ? `${t.metadata.transportType} to ${t.metadata.destination}` :
+                                                        (t.category === 'Bills' || t.category === 'EMI / Loan') && t.metadata?.billProvider ? t.metadata.billProvider : t.note}
+                                            </span>
+                                            {t.recurring && <span className="text-danger" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>↻ {t.recurringType}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '100px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</span>
+                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{new Date(t.date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wallet</span>
+                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{t.walletId ? wallets.find(w => w.id === t.walletId)?.name || 'Unknown' : '-'}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px', alignItems: 'flex-end' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</span>
+                                        <span className="text-danger" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>-₹{Number(t.amount).toLocaleString()}</span>
+                                    </div>
+                                    <button className="btn-icon" onClick={() => handleDelete(t.id)} style={{ color: 'var(--color-text-secondary)', padding: '0.5rem', opacity: 0.6, marginLeft: '0.5rem' }}>
+                                        <FiTrash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal card glass-panel">
-                        <div className="flex-between" style={{ marginBottom: '1.5rem' }}>
-                            <h3>Log Expense: {formData.category}</h3>
-                            <span style={{ fontSize: '2rem' }}>{EXPENSE_CATEGORIES.find(c => c.name === formData.category)?.icon}</span>
-                        </div>
-
+                        <h3>Add Expense 💸</h3>
                         <form className="modal-form" onSubmit={handleSubmit}>
                             <div className="form-group">
-                                <label>Date</label>
-                                <input
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label>Amount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    placeholder="0.00"
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                    required
-                                />
+                                <label>Category</label>
+                                <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+                                    {EXPENSE_CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+                                </select>
                             </div>
 
-                            {/* Category Specific Fields */}
+                            <div className="form-group">
+                                <label>Amount (₹)</label>
+                                <input type="number" step="0.01" min="0" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Date</label>
+                                <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Paid From</label>
+                                <select value={formData.walletId} onChange={(e) => setFormData({ ...formData, walletId: e.target.value })} required>
+                                    <option value="" disabled>Select a Wallet</option>
+                                    {wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+                                </select>
+                            </div>
+
+                            {/* DYNAMIC CATEGORY FIELDS */}
                             {formData.category === "Food" && (
                                 <div className="form-group">
                                     <label>Restaurant / Store</label>
-                                    <input
-                                        type="text"
-                                        placeholder="KFC, Local Grocery, etc."
-                                        value={extraFields.restaurantStore}
-                                        onChange={(e) => setExtraFields({ ...extraFields, restaurantStore: e.target.value })}
-                                        required
-                                    />
+                                    <input type="text" value={formData.restaurant} onChange={(e) => setFormData({ ...formData, restaurant: e.target.value })} required />
                                 </div>
                             )}
 
@@ -428,101 +398,52 @@ const Expense = ({ user }) => {
                                 <>
                                     <div className="form-group">
                                         <label>Transport Type</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Bus, Train, Uber"
-                                            value={extraFields.transportType}
-                                            onChange={(e) => setExtraFields({ ...extraFields, transportType: e.target.value })}
-                                            required
-                                        />
+                                        <select value={formData.transportType} onChange={(e) => setFormData({ ...formData, transportType: e.target.value })}>
+                                            <option value="uber">Uber / Cab</option>
+                                            <option value="bus">Bus</option>
+                                            <option value="train">Train</option>
+                                            <option value="flight">Flight</option>
+                                        </select>
                                     </div>
                                     <div className="form-group">
                                         <label>Destination</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Downtown"
-                                            value={extraFields.destination}
-                                            onChange={(e) => setExtraFields({ ...extraFields, destination: e.target.value })}
-                                            required
-                                        />
+                                        <input type="text" value={formData.destination} onChange={(e) => setFormData({ ...formData, destination: e.target.value })} required />
                                     </div>
                                 </>
                             )}
 
+                            {(formData.category === "Bills" || formData.category === "EMI / Loan" || formData.category === "Rent") && (
+                                <div className="form-group">
+                                    <label>Provider / Name</label>
+                                    <input type="text" value={formData.billProvider} onChange={(e) => setFormData({ ...formData, billProvider: e.target.value })} required />
+                                </div>
+                            )}
+
                             <div className="form-group">
-                                <label>Quick Note</label>
-                                <input
-                                    type="text"
-                                    placeholder="Lunch, Gas, Grocery, etc."
-                                    value={formData.note}
-                                    onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                                />
+                                <label>General Note (Optional)</label>
+                                <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} />
                             </div>
 
-                            {["Bills", "Rent", "EMI / Loan"].includes(formData.category) && (
-                                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', padding: '1rem', backgroundColor: 'var(--color-bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, cursor: 'pointer' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.recurring}
-                                            onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
-                                            style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer' }}
-                                        />
-                                        This is a recurring expense
-                                    </label>
+                            {/* RECURRING OPTIONS */}
+                            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                                <input type="checkbox" id="recurring-checkbox" checked={formData.recurring} onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })} style={{ width: 'auto' }} />
+                                <label htmlFor="recurring-checkbox" style={{ margin: 0 }}>This is a recurring expense</label>
+                            </div>
 
-                                    {formData.recurring && (
-                                        <select
-                                            value={formData.recurringType}
-                                            onChange={(e) => setFormData({ ...formData, recurringType: e.target.value })}
-                                            style={{ marginLeft: 'auto', padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}
-                                        >
-                                            <option value="weekly">Weekly</option>
-                                            <option value="monthly">Monthly</option>
-                                            <option value="yearly">Yearly</option>
-                                        </select>
-                                    )}
+                            {formData.recurring && (
+                                <div className="form-group">
+                                    <label>Repeats every</label>
+                                    <select value={formData.recurringType} onChange={(e) => setFormData({ ...formData, recurringType: e.target.value })}>
+                                        <option value="weekly">Week</option>
+                                        <option value="monthly">Month</option>
+                                        <option value="yearly">Year</option>
+                                    </select>
                                 </div>
                             )}
 
-                            {/* Show full recurring for all as an advanced option, but auto-show for Bills/Rent/EMI */}
-                            {!["Bills", "Rent", "EMI / Loan"].includes(formData.category) && (
-                                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', padding: '1rem', backgroundColor: 'var(--color-bg-tertiary)', opacity: 0.8, borderRadius: 'var(--radius-md)' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, cursor: 'pointer' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.recurring}
-                                            onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
-                                            style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer' }}
-                                        />
-                                        Mark as Recurring
-                                    </label>
-
-                                    {formData.recurring && (
-                                        <select
-                                            value={formData.recurringType}
-                                            onChange={(e) => setFormData({ ...formData, recurringType: e.target.value })}
-                                            style={{ marginLeft: 'auto', padding: '0.5rem', borderRadius: 'var(--radius-sm)' }}
-                                        >
-                                            <option value="weekly">Weekly</option>
-                                            <option value="monthly">Monthly</option>
-                                            <option value="yearly">Yearly</option>
-                                        </select>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className="modal-actions" style={{ marginTop: '2rem' }}>
-                                <button
-                                    type="button"
-                                    className="btn-text"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn-primary" style={{ backgroundColor: 'var(--color-danger)' }}>
-                                    Save Expense
-                                </button>
+                            <div className="modal-actions">
+                                <button type="button" className="btn-text" onClick={closeModal}>Cancel</button>
+                                <button type="submit" className="btn-primary">Save Expense</button>
                             </div>
                         </form>
                     </div>

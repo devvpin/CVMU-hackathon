@@ -169,6 +169,71 @@ textarea {
     box-shadow var(--transition-fast);
 }
 
+/* Universal Aesthetic Styling for inputs, textareas, and selects */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 6px rgba(13, 148, 136, 0.05);
+}
+
+body.dark input:hover,
+body.dark select:hover,
+body.dark textarea:hover {
+  box-shadow: 0 4px 6px rgba(20, 184, 166, 0.05);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+/* Select-specific additions (dropdown arrow, padding, cursor) */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230d9488' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+}
+
+body.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+select option {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  padding: 12px;
+}
+
 /* Common Layout Utilities */
 .container {
   max-width: 1200px;
