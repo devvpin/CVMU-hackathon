@@ -250,7 +250,7 @@ const Expense = ({ user }) => {
             <div className="card glass-panel" style={{ marginBottom: '2rem', textAlign: 'center' }}>
                 <h3 className="text-muted">Total Money Spent</h3>
                 <h2 className="text-danger" style={{ fontSize: '2.5rem', margin: '0.5rem 0' }}>
-                    -${totalExpense.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                    ${totalExpense.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </h2>
             </div>
 
@@ -313,12 +313,12 @@ const Expense = ({ user }) => {
 
             {/* Category Grid */}
             <h3 style={{ marginBottom: '1rem' }}>Add New Expense</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                 {EXPENSE_CATEGORIES.map(cat => (
                     <button 
                         key={cat.name} 
                         className="card glass-panel flex-center flex-col" 
-                        style={{ padding: '1.5rem 1rem', cursor: 'pointer', border: '1px solid var(--border-subtle)', transition: 'all 0.2s ease', background: 'var(--color-bg-secondary)' }}
+                        style={{ padding: '2.5rem 1.5rem', cursor: 'pointer', border: '1px solid var(--border-subtle)', transition: 'all 0.2s ease', background: 'var(--color-bg-secondary)' }}
                         onClick={() => handleCategoryClick(cat.name)}
                     >
                         <span style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{cat.icon}</span>
@@ -361,7 +361,7 @@ const Expense = ({ user }) => {
                                         <span className="category-badge">{t.category}</span>
                                     </td>
                                     <td className="text-danger">
-                                        -${Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                        ${Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                                     </td>
                                     <td className="actions-cell">
                                         <button
@@ -423,7 +423,7 @@ const Expense = ({ user }) => {
                                     />
                                 </div>
                             )}
-
+                            
                             {formData.category === "Travel" && (
                                 <>
                                     <div className="form-group">
