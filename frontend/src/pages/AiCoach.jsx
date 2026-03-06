@@ -3,7 +3,7 @@ import api, { aiCategorize, aiGetInsights } from "../api";
 import "./AiCoach.css";
 
 const AiCoach = () => {
-  const [text, setText] = useState("Bought 2 coffees for $12 at Starbucks");
+  const [text, setText] = useState("Bought 2 coffees for ₹120 at Cafe Coffee Day");
   const [isCatLoading, setIsCatLoading] = useState(false);
   const [catError, setCatError] = useState("");
   const [result, setResult] = useState(null);
@@ -91,7 +91,7 @@ const AiCoach = () => {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={4}
-              placeholder='e.g. "Paid $450 rent" or "Got salary 5200"'
+              placeholder='e.g. "Paid ₹4500 rent" or "Got salary ₹52000"'
             />
             <button className="btn-primary" type="submit" disabled={!canCategorize || isCatLoading}>
               {isCatLoading ? "Categorizing..." : "Categorize"}
@@ -108,7 +108,7 @@ const AiCoach = () => {
               </div>
               <div className="ai-result-row">
                 <span className="label">Amount</span>
-                <span className="value">${Number(result.amount).toLocaleString()}</span>
+                <span className="value">₹{Number(result.amount).toLocaleString()}</span>
               </div>
               <div className="ai-result-row">
                 <span className="label">Category</span>

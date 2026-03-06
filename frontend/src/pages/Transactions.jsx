@@ -1,13 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { FiPlus, FiTrash2, FiEdit2, FiMic, FiCamera } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit2, FiMic, FiCamera, FiFilter } from "react-icons/fi";
 import api from "../api";
 import { sendBudgetAlert } from "../utils/notifications";
 import "./Transactions.css";
+
+const EXPENSE_CATEGORIES = ["Food", "Transport", "Entertainment", "Rent/Mortgage", "Utilities", "Shopping", "Other"];
+const INCOME_CATEGORIES = ["Salary", "Earned Extra", "Freelance", "Someone Gifted", "Investment", "Other"];
 
 const Transactions = ({ user }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+
+    // Filter state
+    const [filterType, setFilterType] = useState("all");
+    const [filterCategory, setFilterCategory] = useState("all");
 
     // Form state
     const [formData, setFormData] = useState({
@@ -40,6 +47,29 @@ const Transactions = ({ user }) => {
             fetchTransactions();
         }
     }, [user]);
+
+    // Get filtered transactions
+    const filteredTransactions = transactions.filter((t) => {
+        if (filterType !== "all" && t.type !== filterType) return false;
+        if (filterCategory !== "all" && t.category !== filterCategory) return false;
+        return true;
+    });
+
+    // Get available categories based on selected type filter
+    const availableCategories = [...new Set(
+        transactions
+            .filter((t) => filterType === "all" || t.type === filterType)
+            .map((t) => t.category)
+    )].sort();
+
+    // Get form categories based on selected transaction type
+    const formCategories = formData.type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
+    // Reset category filter when type changes
+    const handleTypeFilterChange = (value) => {
+        setFilterType(value);
+        setFilterCategory("all");
+    };
 
     const handleSmartAdd = async (e) => {
         e.preventDefault();
@@ -205,14 +235,58 @@ const Transactions = ({ user }) => {
                 </button>
             </header>
 
+            {/* Filter Bar */}
+            <div className="card glass-panel transactions-filters" style={{ marginBottom: '1rem', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="filter-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <FiFilter style={{ color: 'var(--color-primary)' }} />
+                    <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>Filters:</span>
+                </div>
+                <div className="form-group" style={{ margin: 0, minWidth: '140px' }}>
+                    <label style={{ fontSize: '0.75rem', marginBottom: '0.25rem', display: 'block' }}>Type</label>
+                    <select
+                        value={filterType}
+                        onChange={(e) => handleTypeFilterChange(e.target.value)}
+                        style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                    >
+                        <option value="all">All Types</option>
+                        <option value="expense">Expense 💸</option>
+                        <option value="income">Income 💰</option>
+                    </select>
+                </div>
+                <div className="form-group" style={{ margin: 0, minWidth: '160px' }}>
+                    <label style={{ fontSize: '0.75rem', marginBottom: '0.25rem', display: 'block' }}>Category</label>
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        style={{ padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                    >
+                        <option value="all">All Categories</option>
+                        {availableCategories.map((cat) => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+                </div>
+                {(filterType !== "all" || filterCategory !== "all") && (
+                    <button
+                        className="btn-text"
+                        onClick={() => { setFilterType("all"); setFilterCategory("all"); }}
+                        style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}
+                    >
+                        Clear filters
+                    </button>
+                )}
+            </div>
+
             <div className="card glass-panel transactions-container">
                 {loading ? (
                     <div className="flex-center" style={{ padding: "2rem" }}>
                         Fetching your transactions...
                     </div>
-                ) : transactions.length === 0 ? (
+                ) : filteredTransactions.length === 0 ? (
                     <div className="flex-center text-muted" style={{ padding: "2rem" }}>
-                        🌱 Nothing here yet! Add your first transaction to get started.
+                        {transactions.length === 0
+                            ? "🌱 Nothing here yet! Add your first transaction to get started."
+                            : "🔍 No transactions match the current filters."}
                     </div>
                 ) : (
                     <table className="transactions-table">
@@ -226,7 +300,7 @@ const Transactions = ({ user }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {transactions.map((t) => (
+                            {filteredTransactions.map((t) => (
                                 <tr key={t.id}>
                                     <td>{new Date(t.date).toLocaleDateString()}</td>
                                     <td>{t.description}</td>
@@ -238,7 +312,7 @@ const Transactions = ({ user }) => {
                                             t.type === "income" ? "text-success" : "text-danger"
                                         }
                                     >
-                                        {t.type === "income" ? "+" : "-"}${Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                        {t.type === "income" ? "+" : "-"}₹{Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                                     </td>
                                     <td className="actions-cell">
                                         <button
@@ -277,7 +351,7 @@ const Transactions = ({ user }) => {
                                 <div style={{ display: "flex", gap: "0.5rem" }}>
                                     <input
                                         type="text"
-                                        placeholder="e.g. Grabbed a $5 latte this morning"
+                                        placeholder="e.g. Grabbed a ₹50 chai this morning"
                                         value={smartText}
                                         onChange={(e) => setSmartText(e.target.value)}
                                         onKeyDown={(e) => e.key === "Enter" && handleSmartAdd(e)}
@@ -361,7 +435,11 @@ const Transactions = ({ user }) => {
                                 <select
                                     value={formData.type}
                                     onChange={(e) =>
-                                        setFormData({ ...formData, type: e.target.value })
+                                        setFormData({
+                                            ...formData,
+                                            type: e.target.value,
+                                            category: e.target.value === "income" ? "Salary" : "Food",
+                                        })
                                     }
                                 >
                                     <option value="expense">Spent it 💸</option>
@@ -390,14 +468,9 @@ const Transactions = ({ user }) => {
                                         setFormData({ ...formData, category: e.target.value })
                                     }
                                 >
-                                    <option value="Food">Food</option>
-                                    <option value="Transport">Transport</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Salary">Salary</option>
-                                    <option value="Rent/Mortgage">Rent/Mortgage</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Shopping">Shopping</option>
-                                    <option value="Other">Other</option>
+                                    {formCategories.map((cat) => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">

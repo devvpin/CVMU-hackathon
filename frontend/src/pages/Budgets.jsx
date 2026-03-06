@@ -143,14 +143,14 @@ const Budgets = ({ user }) => {
 
                 <div className="budget-amounts flex-between">
                   <div>
-                    <span className="spent">${spent.toLocaleString()}</span>
+                    <span className="spent">₹{spent.toLocaleString()}</span>
                     <span className="text-muted">
                       {" "}
-                      / ${budget.amount.toLocaleString()}
+                      / ₹{budget.amount.toLocaleString()}
                     </span>
                   </div>
                   <div className="remaining text-muted">
-                    ${Math.max(budget.amount - spent, 0).toLocaleString()} left
+                    ₹{Math.max(budget.amount - spent, 0).toLocaleString()} left
                   </div>
                 </div>
 
@@ -201,7 +201,7 @@ const Budgets = ({ user }) => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Max you want to spend ($)</label>
+                  <label>Max you want to spend (₹)</label>
                   <input
                     type="number"
                     step="1"

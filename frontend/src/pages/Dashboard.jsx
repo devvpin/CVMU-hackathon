@@ -134,7 +134,7 @@ const Dashboard = ({ user }) => {
           </div>
           <div className="summary-details">
             <h3>You've got</h3>
-            <p>${summary.balance.toLocaleString()}</p>
+            <p>₹{summary.balance.toLocaleString()}</p>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ const Dashboard = ({ user }) => {
           </div>
           <div className="summary-details">
             <h3>Money in 💰</h3>
-            <p>${summary.totalIncome.toLocaleString()}</p>
+            <p>₹{summary.totalIncome.toLocaleString()}</p>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ const Dashboard = ({ user }) => {
           </div>
           <div className="summary-details">
             <h3>Money out 💸</h3>
-            <p>${summary.totalExpense.toLocaleString()}</p>
+            <p>₹{summary.totalExpense.toLocaleString()}</p>
           </div>
         </div>
       </div>

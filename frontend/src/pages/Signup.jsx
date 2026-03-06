@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, storage } from "../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth } from "../firebase";
 import { checkUsernameAvailability, createUserProfile } from "../api";
 import "./Auth.css";
 
@@ -91,18 +90,32 @@ const Signup = () => {
     }
   };
 
-  const uploadProfilePicture = async (uid) => {
+  // Compress and convert image to base64 data URL (stored in Firestore, no Storage needed)
+  const uploadProfilePicture = async () => {
     if (!profilePicture) return null;
 
-    try {
-      const storageRef = ref(storage, `profile-pictures/${uid}`);
-      await uploadBytes(storageRef, profilePicture);
-      const url = await getDownloadURL(storageRef);
-      return url;
-    } catch (err) {
-      console.error("Error uploading profile picture:", err);
-      return null;
-    }
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(profilePicture);
+
+      img.onload = () => {
+        // Resize to max 200x200 for avatar
+        const MAX = 200;
+        const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(objectUrl);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(null);
+      };
+      img.src = objectUrl;
+    });
   };
 
   const handleSignup = async (e) => {
@@ -121,10 +134,10 @@ const Signup = () => {
 
     try {
       // Create Firebase Auth account
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
 
       // Upload profile picture if provided
-      const profilePictureURL = await uploadProfilePicture(userCredential.user.uid);
+      const profilePictureURL = await uploadProfilePicture();
 
       // Wait a moment for the auth state to update
       await new Promise(resolve => setTimeout(resolve, 500));

@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserProfile, updateUsername, updateUserProfile } from "../api";
 import { updateEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
+
 import { FiEdit2, FiSave, FiX, FiCamera } from "react-icons/fi";
 import "./Profile.css";
 
@@ -75,15 +74,27 @@ const Profile = ({ user }) => {
   const uploadProfilePicture = async () => {
     if (!profilePicture) return profile.profilePictureURL || "";
 
-    try {
-      const storageRef = ref(storage, `profile-pictures/${user.uid}`);
-      await uploadBytes(storageRef, profilePicture);
-      const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL;
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      return profile.profilePictureURL || "";
-    }
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(profilePicture);
+
+      img.onload = () => {
+        const MAX = 200;
+        const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(objectUrl);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(profile.profilePictureURL || "");
+      };
+      img.src = objectUrl;
+    });
   };
 
   const handleSave = async () => {

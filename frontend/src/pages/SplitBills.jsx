@@ -1,23 +1,22 @@
 import { useState } from "react";
-import { FiUsers, FiDollarSign, FiShare2 } from "react-icons/fi";
+import { FiUsers, FiShare2, FiUser } from "react-icons/fi";
 import "./SplitBills.css";
 
 const SplitBills = () => {
     const [total, setTotal] = useState("");
     const [people, setPeople] = useState("2");
-    const [tipPercentage, setTipPercentage] = useState("0");
     const [taxAmount, setTaxAmount] = useState("");
+    const [personName, setPersonName] = useState("");
 
     const totalAmount = parseFloat(total) || 0;
     const tax = parseFloat(taxAmount) || 0;
     const peopleCount = parseInt(people) || 1;
-    const tip = (totalAmount * (parseFloat(tipPercentage) || 0)) / 100;
 
-    const grandTotal = totalAmount + tax + tip;
+    const grandTotal = totalAmount + tax;
     const perPerson = grandTotal / Math.max(1, peopleCount);
 
     const handleShare = async () => {
-        const text = `Hey! Here's the split for our bill:\n\nSubtotal: $${totalAmount.toFixed(2)}\nTax: $${tax.toFixed(2)}\nTip (${tipPercentage}%): $${tip.toFixed(2)}\nGrand Total: $${grandTotal.toFixed(2)}\n\nYour share (${peopleCount} ways): $${perPerson.toFixed(2)}\n\nPlease send it to me soon! 💸`;
+        const text = `Hey${personName ? ` ${personName}` : ''}! Here's the split for our bill:\n\nSubtotal: ₹${totalAmount.toFixed(2)}\nTax: ₹${tax.toFixed(2)}\nGrand Total: ₹${grandTotal.toFixed(2)}\n\nYour share (${peopleCount} ways): ₹${perPerson.toFixed(2)}\n\nPlease send it to me soon! 💸`;
 
         if (navigator.share) {
             try {
@@ -49,7 +48,7 @@ const SplitBills = () => {
                     <div className="form-group">
                         <label>Total Bill Amount</label>
                         <div className="input-with-icon">
-                            <FiDollarSign className="input-icon" />
+                            <span className="input-icon">₹</span>
                             <input
                                 type="number"
                                 min="0"
@@ -64,7 +63,7 @@ const SplitBills = () => {
                     <div className="form-group">
                         <label>Additional Tax</label>
                         <div className="input-with-icon">
-                            <FiDollarSign className="input-icon" />
+                            <span className="input-icon">₹</span>
                             <input
                                 type="number"
                                 min="0"
@@ -74,19 +73,6 @@ const SplitBills = () => {
                                 placeholder="0.00"
                             />
                         </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label>Tip Percentage: {tipPercentage}%</label>
-                        <input
-                            type="range"
-                            min="0"
-                            max="30"
-                            step="5"
-                            value={tipPercentage}
-                            onChange={(e) => setTipPercentage(e.target.value)}
-                            className="slider"
-                        />
                     </div>
 
                     <div className="form-group">
@@ -102,15 +88,28 @@ const SplitBills = () => {
                             />
                         </div>
                     </div>
+
+                    <div className="form-group">
+                        <label>Person's Name (optional)</label>
+                        <div className="input-with-icon">
+                            <FiUser className="input-icon" />
+                            <input
+                                type="text"
+                                value={personName}
+                                onChange={(e) => setPersonName(e.target.value)}
+                                placeholder="e.g. Rahul"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="split-results text-center">
                     <h3 className="text-secondary">Grand Total</h3>
-                    <h2 className="grand-total">${grandTotal.toFixed(2)}</h2>
+                    <h2 className="grand-total">₹{grandTotal.toFixed(2)}</h2>
 
                     <div className="per-person-box text-accent">
                         <h4>Each Person Pays</h4>
-                        <h1 className="highlight">${perPerson.toFixed(2)}</h1>
+                        <h1 className="highlight">₹{perPerson.toFixed(2)}</h1>
                     </div>
 
                     <button

@@ -22,7 +22,10 @@ const monthKey = (d) => (typeof d === "string" ? d.slice(0, 7) : "");
 const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [months, setMonths] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]); // eslint-disable-line no-unused-vars
   const [summary, setSummary] = useState({
     balance: 0,
     totalIncome: 0,
@@ -49,21 +52,62 @@ const Reports = () => {
         ]);
 
         const data = summaryRes.data;
-        const formattedBreakdown = Object.keys(data.categoryBreakdown || {}).map((key) => ({
-          name: key,
-          value: data.categoryBreakdown[key],
-        }));
-
-        setSummary({
-          balance: data.balance ?? 0,
-          totalIncome: data.totalIncome ?? 0,
-          totalExpense: data.totalExpense ?? 0,
-          categoryBreakdown: formattedBreakdown,
-        });
-
         const transactions = transRes.data || [];
+        setAllTransactions(transactions);
+
+        // Extract unique categories
+        const uniqueCategories = [...new Set(transactions.map((t) => t.category))].sort();
+        setCategories(uniqueCategories);
+
+        // Filter transactions by selected category
+        const filteredTransactions = selectedCategory === "all"
+          ? transactions
+          : transactions.filter((t) => t.category === selectedCategory);
+
+        // If category filter is applied, recalculate summary from filtered transactions
+        if (selectedCategory !== "all") {
+          const filteredIncome = filteredTransactions
+            .filter((t) => t.type === "income")
+            .reduce((sum, t) => sum + t.amount, 0);
+          const filteredExpense = filteredTransactions
+            .filter((t) => t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          const catBreakdown = {};
+          filteredTransactions
+            .filter((t) => t.type === "expense")
+            .forEach((t) => {
+              catBreakdown[t.category] = (catBreakdown[t.category] || 0) + t.amount;
+            });
+
+          const formattedBreakdown = Object.keys(catBreakdown).map((key) => ({
+            name: key,
+            value: catBreakdown[key],
+          }));
+
+          setSummary({
+            balance: filteredIncome - filteredExpense,
+            totalIncome: filteredIncome,
+            totalExpense: filteredExpense,
+            categoryBreakdown: formattedBreakdown,
+          });
+        } else {
+          const formattedBreakdown = Object.keys(data.categoryBreakdown || {}).map((key) => ({
+            name: key,
+            value: data.categoryBreakdown[key],
+          }));
+
+          setSummary({
+            balance: data.balance ?? 0,
+            totalIncome: data.totalIncome ?? 0,
+            totalExpense: data.totalExpense ?? 0,
+            categoryBreakdown: formattedBreakdown,
+          });
+        }
+
+        // Build monthly trend from filtered transactions
         const byMonth = {};
-        transactions.forEach((t) => {
+        filteredTransactions.forEach((t) => {
           const mk = monthKey(t.date);
           if (!mk) return;
           if (!byMonth[mk]) byMonth[mk] = { name: mk, income: 0, expense: 0 };
@@ -84,7 +128,7 @@ const Reports = () => {
     };
 
     fetchReports();
-  }, [monthQuery]);
+  }, [monthQuery, selectedCategory]);
 
   if (loading) {
     return (
@@ -117,6 +161,22 @@ const Reports = () => {
             ))}
           </select>
         </div>
+
+        <div className="toolbar-item">
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="all">All categories</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {error && (
@@ -128,15 +188,15 @@ const Reports = () => {
       <div className="reports-kpis">
         <div className="kpi card glass-panel">
           <div className="kpi-label">Balance</div>
-          <div className="kpi-value">${Number(summary.balance).toLocaleString()}</div>
+          <div className="kpi-value">₹{Number(summary.balance).toLocaleString()}</div>
         </div>
         <div className="kpi card glass-panel">
           <div className="kpi-label">Income</div>
-          <div className="kpi-value">${Number(summary.totalIncome).toLocaleString()}</div>
+          <div className="kpi-value">₹{Number(summary.totalIncome).toLocaleString()}</div>
         </div>
         <div className="kpi card glass-panel">
           <div className="kpi-label">Expense</div>
-          <div className="kpi-value">${Number(summary.totalExpense).toLocaleString()}</div>
+          <div className="kpi-value">₹{Number(summary.totalExpense).toLocaleString()}</div>
         </div>
       </div>
 
@@ -207,5 +267,3 @@ const Reports = () => {
 };
 
 export default Reports;
-
-

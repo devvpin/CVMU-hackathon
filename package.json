@@ -1,16 +1,16 @@
-  "dependencies": {
-    "firebase": "^12.10.0",
-
+{
   "name": "cvmu-hackathon",
   "private": true,
   "version": "1.0.0",
   "description": "MoneyMate - full-stack web app (React/Vite + Express/Firebase).",
+  "dependencies": {
+    "firebase": "^12.10.0"
+  },
   "scripts": {
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "build:frontend": "npm --prefix frontend run build",
     "start:backend": "npm --prefix backend start",
     "start:web": "npm --prefix backend start"
-599826761daa1761cdb576648f04e11f8e2b1198
   }
 }
