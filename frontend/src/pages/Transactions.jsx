@@ -9,9 +9,24 @@ const INCOME_CATEGORIES = ["Salary", "Earned Extra", "Freelance", "Someone Gifte
 
 const Transactions = ({ user }) => {
     const [transactions, setTransactions] = useState([]);
+<<<<<<< HEAD
     const [wallets, setWallets] = useState([]);
+=======
+    const [budgets, setBudgets] = useState([]);
+>>>>>>> 1ce804a6076113f2af23cde0356255425226b378
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [popup, setPopup] = useState({ visible: false, message: '' });
+    // Auto-hide popup after this many milliseconds (change to adjust duration)
+    const POPUP_AUTO_HIDE_MS = 4000;
+
+    useEffect(() => {
+        if (!popup.visible) return;
+        const timer = setTimeout(() => {
+            setPopup({ visible: false, message: '' });
+        }, POPUP_AUTO_HIDE_MS);
+        return () => clearTimeout(timer);
+    }, [popup.visible]);
 
     // Filter state
     const [filterType, setFilterType] = useState("all");
@@ -36,12 +51,21 @@ const Transactions = ({ user }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+<<<<<<< HEAD
                 const [transRes, walletsRes] = await Promise.all([
                     api.get("/transactions"),
                     api.get("/wallets")
                 ]);
                 setTransactions(transRes.data);
                 setWallets(walletsRes.data);
+=======
+                const [transRes, budgetsRes] = await Promise.all([
+                    api.get("/transactions"),
+                    api.get("/budgets")
+                ]);
+                setTransactions(transRes.data);
+                setBudgets(budgetsRes.data);
+>>>>>>> 1ce804a6076113f2af23cde0356255425226b378
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -192,12 +216,48 @@ const Transactions = ({ user }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const expenseAmount = Number(formData.amount);
+
+            // Check budget cap before saving context
+            let isOverBudget = false;
+            let currentBudget = null;
+
+            if (formData.type === "expense") {
+                const transactionMonth = formData.date.slice(0, 7); // YYYY-MM
+
+                // Find if there is a budget for this category and month
+                currentBudget = budgets.find(
+                    b => b.category === formData.category && b.month === transactionMonth
+                );
+
+                if (currentBudget) {
+                    // Calculate exactly how much was spent BEFORE this transaction
+                    const alreadySpent = transactions
+                        .filter(t => t.type === "expense" && t.category === formData.category && t.date.startsWith(transactionMonth))
+                        .reduce((sum, t) => sum + Number(t.amount), 0);
+
+                    // Check if adding this expense crosses the budget line
+                    // Notify when adding this expense makes total spent reach or exceed the budget
+                    if (alreadySpent + expenseAmount >= currentBudget.amount) {
+                        isOverBudget = true;
+                    }
+                }
+            }
+
             const response = await api.post("/transactions", formData);
             setTransactions([response.data, ...transactions]);
 
-            // Trigger local notification if it's a large expense
-            if (formData.type === "expense" && Number(formData.amount) >= 500) {
-                sendBudgetAlert(formData.amount, formData.category);
+            // Trigger local notification if it's a large expense OR crosses a budget cap
+            if (formData.type === "expense") {
+                if (isOverBudget) {
+                    const msg = `⚠️ OVER BUDGET: ${formData.category}! Limit is $${currentBudget.amount}`;
+                    sendBudgetAlert(expenseAmount, msg);
+                    setPopup({ visible: true, message: msg });
+                } else if (expenseAmount >= 500) {
+                    const msg = `Large expense: $${expenseAmount} in ${formData.category}`;
+                    sendBudgetAlert(expenseAmount, formData.category);
+                    setPopup({ visible: true, message: msg });
+                }
             }
 
             setShowModal(false);
@@ -229,6 +289,26 @@ const Transactions = ({ user }) => {
 
     return (
         <div className="page transactions">
+            {popup.visible && (
+                <div style={{
+                    position: 'fixed',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'rgba(0,0,0,0.85)',
+                    color: '#fff',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '8px',
+                    zIndex: 10000,
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
+                    maxWidth: '340px'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Notification</div>
+                        <button onClick={() => setPopup({ visible: false, message: '' })} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.1rem', cursor: 'pointer' }}>×</button>
+                    </div>
+                    <div style={{ marginTop: '0.4rem', fontSize: '0.9rem', lineHeight: 1.3 }}>{popup.message}</div>
+                </div>
+            )}
             <header className="page-header flex-between">
                 <div>
                     <h1>Transactions 📝</h1>

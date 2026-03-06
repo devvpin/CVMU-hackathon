@@ -253,7 +253,7 @@
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
   color: white;
-  padding: var(--space-3) var(--space-4);
+  padding: 2rem 3rem;
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   font-weight: 600;
@@ -264,8 +264,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-}
+  gap: var(--space-2);  min-height: 3rem;}
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
