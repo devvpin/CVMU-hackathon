@@ -6,7 +6,7 @@ const router = express.Router();
 // Initialize the Google Gen AI client with the API key from environment
 // We initialize it lazily or check if the key exists to prevent server crashes on startup
 export const getAiClient = () => {
-    const apiKey = (process.env.GEMINI_API_KEY || 'AIzaSyAMBUjCNRIpsPXjUD1HE7KBY9eKvvXf0cA').trim();
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 
     if (!apiKey) {
         console.warn('GEMINI_API_KEY not configured or empty after trim');
