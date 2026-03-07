@@ -227,24 +227,6 @@ Open the app at `http://127.0.0.1:5000`.
 - `backend/serviceAccountKey.json` is **ignored** by git and should never be committed.
 - AI endpoints work even without `GEMINI_API_KEY` (they return friendly fallback messages).
 
-## Tech Stack
-
-### Backend
-- **Framework**: Express.js
-- **Database**: Firebase Firestore
-- **Authentication**: Firebase Authentication
-- **AI Integration**: Google Gemini API
-
-### Frontend
-- **Framework**: React with Vite
-- **Styling**: CSS
-- **Build Tool**: Vite
-- **Authentication**: Firebase SDK
-
-### Mobile
-- **Framework**: Flutter
-- **Target Platforms**: Android, iOS, Web, Windows, macOS, Linux
-- **Backend**: Same Express API as web client
 
 ## Project Structure
 
