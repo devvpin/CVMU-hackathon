@@ -1,31 +1,169 @@
-# BudgetPilot (CVMU Hackathon) — Web App
+# 💰 BudgetPilot — Personal Finance Manager  
+### CVMU Hackathon Project
 
-BudgetPilot is a comprehensive personal finance management application that helps users track, manage, and optimize their finances across web and mobile platforms.
+**BudgetPilot** is a full-stack personal finance management application that helps users **track expenses, manage multiple wallets, set budgets, and receive AI-powered financial insights**.
 
-This repository contains a **full-stack web app**:
-- **Frontend**: React + Vite (`frontend/`)
-- **Backend**: Express API + Firebase Admin (`backend/`)
-- **Mobile**: Flutter cross-platform application (`mobile/`)
+The system supports **web and mobile platforms**, allowing users to manage their finances anywhere and make smarter financial decisions.
 
-The backend can also **serve the production frontend build** (`frontend/dist`) so you can deploy as **one web app**.
+---
 
-## ✨ Features
+# 🚀 Project Overview
 
-### Core Functionality
-- **Authentication** — Secure user registration and login with email/password and password recovery
-- **Dashboard** — Overview of financial health with key metrics and insights
-- **Wallet Management** — Create and manage multiple wallets for different accounts or purposes
-- **Transaction Tracking** — Log and categorize expenses and income transactions
-- **Budget Management** — Set budgets for different categories and monitor spending
-- **Reports & Analytics** — Visualize spending patterns and financial trends
-- **Split Bills** — Easily split and track shared expenses with friends
-- **User Profiles** — Manage account settings and personal information
+BudgetPilot provides a complete solution for managing personal finances with features such as:
 
-### AI-Powered Features
-- **AI Coach** — Get personalized financial advice and spending recommendations powered by Google Gemini
-- Smart insights and suggestions for budget optimization
+- Expense and income tracking  
+- Multiple wallet management  
+- Budget monitoring  
+- Bill splitting with friends  
+- AI-powered financial guidance  
+- Financial reports and analytics
+- notification for reminders and limit message  
 
-## Run in development
+The application uses **Firebase services for authentication and database storage** to ensure secure and scalable data management.
+
+---
+
+# 🏗️ System Architecture
+
+| Layer | Technology |
+|------|-------------|
+| Frontend | React + Vite |
+| Backend | Express.js |
+| Database | Firebase Firestore |
+| Authentication | Firebase Authentication |
+| AI Integration | Google Gemini API |
+| Mobile App | web based app |
+
+---
+
+# ✨ Features
+
+## 🔐 Authentication
+- Secure user registration and login  
+- Email & password authentication  
+- Password recovery  
+
+---
+
+## 📊 Dashboard
+Provides a quick overview of the user's financial status:
+
+- Total balance
+- Monthly expenses
+- Budget progress
+- Recent transactions
+
+---
+
+## 👛 Wallet Management
+Users can create and manage **multiple wallets** such as:
+
+- Cash  
+- Bank Account  
+- UPI  
+- Credit Card  
+- Savings Wallet  
+
+---
+
+## 💳 Transaction Tracking
+- Add income and expense transactions  
+- Categorize spending  
+- View transaction history  
+- Filter by wallet, category, or date  
+
+---
+
+## 🎯 Budget Management
+- Set category-wise budgets  
+- Monitor spending progress  
+- Receive alerts when budgets are exceeded  
+
+---
+
+## 📈 Reports & Analytics
+Users can visualize financial patterns through:
+
+- Spending trends  
+- Category-wise analysis  
+- Monthly summaries  
+
+---
+
+## 🤝 Split Bills
+Users can split shared expenses with friends.
+
+Example:
+
+Dinner Bill: ₹1200  
+People: 3  
+Each Person Pays: ₹400  
+
+The app tracks who owes whom.
+
+---
+
+## 🤖 AI Financial Coach
+BudgetPilot includes an **AI-powered financial assistant using Google Gemini** that provides:
+
+- Personalized financial advice  
+- Budget optimization suggestions  
+- Spending insights based on transaction history  
+
+If the AI API key is not configured, the system returns **friendly fallback responses**.
+
+---
+
+# 🗄️ Database (Firebase Firestore)
+
+The application uses **Firebase Firestore** as the main database.
+
+Firestore stores:
+
+- User profiles  
+- Wallet information  
+- Transactions  
+- Budget data  
+- Bill splits  
+- Reports  
+
+Benefits of Firestore:
+
+- Cloud hosted database  
+- Real-time updates  
+- Secure and scalable  
+- Easy integration with Firebase Authentication  
+
+---
+
+# 🛠️ Tech Stack
+
+## Backend
+- Node.js  
+- Express.js  
+- Firebase Admin SDK  
+- Google Gemini API  
+
+## Frontend
+- React  
+- Vite  
+- CSS  
+- Firebase SDK  
+
+## Mobile
+- web based app 
+
+Supported platforms:
+- Android  
+- iOS  
+- Web  
+- Windows  
+- macOS  
+- Linux  
+
+---
+
+
 
 ### Backend
 1. Copy `backend/ENV.example` to `backend/.env` and fill values if needed.
