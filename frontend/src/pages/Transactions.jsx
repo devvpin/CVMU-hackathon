@@ -112,7 +112,8 @@ const Transactions = ({ user }) => {
             setSmartText("");
         } catch (error) {
             console.error("Error with Smart Add:", error);
-            alert("Oops! Couldn't analyze that. Check your AI setup.");
+            const msg = error.response?.data?.error || "Oops! Couldn't analyze that. Check your AI setup.";
+            alert(msg);
         } finally {
             setIsAiLoading(false);
         }
@@ -185,7 +186,8 @@ const Transactions = ({ user }) => {
                     }));
                 } catch (apiError) {
                     console.error("API Error scanning receipt:", apiError);
-                    alert("Oops! Couldn't scan that receipt.");
+                    const msg = apiError.response?.data?.error || "Oops! Couldn't scan that receipt.";
+                    alert(msg);
                 } finally {
                     setIsAiLoading(false);
                     // Reset file input

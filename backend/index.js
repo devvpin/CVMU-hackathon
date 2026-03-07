@@ -68,3 +68,4 @@ if (fs.existsSync(frontendDistPath)) {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT} (accessible on local network)`);
 });
+// Restart trigger for dotenv 2
