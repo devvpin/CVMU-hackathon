@@ -6,10 +6,14 @@ const router = express.Router();
 // Initialize the Google Gen AI client with the API key from environment
 // We initialize it lazily or check if the key exists to prevent server crashes on startup
 export const getAiClient = () => {
-    if (!process.env.GEMINI_API_KEY) {
-        return null; // Key hasn't been configured yet
+    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+
+    if (!apiKey) {
+        console.warn('GEMINI_API_KEY not configured or empty after trim');
+        return null;
     }
-    return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    console.log('Initializing GoogleGenAI with key length:', apiKey.length);
+    return new GoogleGenAI({ apiKey });
 };
 
 /**
@@ -72,8 +76,10 @@ router.post('/categorize', async (req, res) => {
  * Body: { imageBase64: "...", mimeType: "image/jpeg" }
  */
 router.post('/scan-receipt', async (req, res) => {
+
     try {
         const { imageBase64, mimeType } = req.body;
+        console.log('Request body received - mimeType:', mimeType, ', imageBase64 length:', imageBase64?.length);
 
         if (!imageBase64 || !mimeType) {
             return res.status(400).json({ error: 'Image data and mimeType are required' });

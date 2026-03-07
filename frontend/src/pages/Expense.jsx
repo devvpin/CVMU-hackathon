@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FiTrash2, FiMic, FiCamera, FiCoffee, FiMapPin, FiShoppingBag, FiFileText, FiHome, FiCreditCard, FiTv, FiMoreHorizontal, FiTrendingDown } from "react-icons/fi";
+import { FiTrash2, FiMic, FiCamera, FiCoffee, FiMapPin, FiShoppingBag, FiFileText, FiHome, FiCreditCard, FiTv, FiMoreHorizontal, FiTrendingDown, FiPlus } from "react-icons/fi";
 import api from "../api";
 import "./Expense.css";
 
@@ -233,11 +233,18 @@ const Expense = ({ user }) => {
                     <h1>Expenses 💸</h1>
                     <p>Track where your money goes</p>
                 </div>
+                <button
+                    className="btn-primary"
+                    onClick={() => setShowModal(true)}
+                    style={{ padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                    <FiPlus /> Log Expense
+                </button>
             </header>
 
             <div className="expense-summary card glass-panel" style={{ padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', border: '1px solid var(--border-subtle)' }}>
                 <h3 style={{ color: 'var(--color-text-secondary)', fontSize: '1rem', fontWeight: '600' }}>Total Managed Expense</h3>
-                <p className="text-danger" style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>-₹{totalExpense.toLocaleString()}</p>
+                <p className="text-danger" style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>₹{totalExpense.toLocaleString()}</p>
             </div>
 
             <div className="ai-quick-add card glass-panel" style={{ marginBottom: "2rem", padding: '1.5rem', border: '1px solid var(--border-subtle)' }}>
@@ -289,7 +296,7 @@ const Expense = ({ user }) => {
             </div>
 
             {/* Category selection - horizontal scroll row */}
-            <h3 style={{ marginBottom: '1rem', marginTop: '2rem' }}>Add New Expense</h3>
+            <h3 style={{ marginBottom: '1rem', marginTop: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>Add New Expense</h3>
             <div className="expense-categories-grid">
                 {EXPENSE_CATEGORIES.map(cat => (
                     <button
@@ -328,7 +335,7 @@ const Expense = ({ user }) => {
                                                     t.category === 'Travel' && t.metadata?.destination ? `${t.metadata.transportType} to ${t.metadata.destination}` :
                                                         (t.category === 'Bills' || t.category === 'EMI / Loan') && t.metadata?.billProvider ? t.metadata.billProvider : t.note}
                                             </span>
-                                            {t.recurring && <span style={{ background: 'var(--color-danger)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>↻ {t.recurringType}</span>}
+                                            {t.recurring && <span className="text-danger" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>↻ {t.recurringType}</span>}
                                         </div>
                                     </div>
                                 </div>

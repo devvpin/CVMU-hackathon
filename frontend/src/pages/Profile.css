@@ -1,22 +1,25 @@
-.profile-container {
-  max-width: 900px;
+.profile-page {
+  max-width: 1000px;
   margin: 0 auto;
 }
 
-.profile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.page-header {
   margin-bottom: var(--space-6);
 }
 
-.profile-header h1 {
+.page-header h1 {
   font-size: var(--font-size-3xl);
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-text-primary), var(--color-primary));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.page-header p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
 }
 
 .edit-actions {
@@ -56,15 +59,26 @@
   gap: var(--space-6);
 }
 
-.profile-card {
+.card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--color-bg-primary);
+}
+
+.glass-panel {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-main-card {
   padding: var(--space-6);
 }
 
-.profile-card h2 {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  margin-bottom: var(--space-5);
-  color: var(--color-text-primary);
+.profile-main-content {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-start;
 }
 
 .profile-picture-section {
@@ -72,14 +86,12 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-6);
-  border-bottom: var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .profile-picture-large {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid var(--color-primary);
@@ -122,19 +134,20 @@
   color: var(--color-primary);
 }
 
-.profile-info {
+.profile-basic-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.info-row {
+.info-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.info-row label {
+.info-group label {
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -144,6 +157,7 @@
 
 .info-value {
   font-size: var(--font-size-base);
+  font-weight: 500;
   color: var(--color-text-primary);
   display: flex;
   flex-direction: column;
@@ -156,16 +170,31 @@
   font-style: italic;
 }
 
+.profile-details-card {
+  padding: var(--space-6);
+}
+
+.profile-details-card h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-5);
+  color: var(--color-text-primary);
+}
+
+.profile-details-card .form-grid {
+  margin-top: var(--space-4);
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 0;
 }
 
 .form-group.full-width {
@@ -173,11 +202,11 @@
 }
 
 .form-group label {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .form-input {
@@ -196,12 +225,16 @@
   outline: none;
 }
 
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
 .btn-primary,
 .btn-secondary {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-6);
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: var(--font-size-sm);
@@ -236,10 +269,19 @@
 }
 
 @media (max-width: 768px) {
-  .profile-header {
+  .profile-page {
+    padding-bottom: var(--space-8);
+  }
+
+  .profile-main-content {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-picture-large {
+    width: 120px;
+    height: 120px;
   }
 
   .form-grid {
