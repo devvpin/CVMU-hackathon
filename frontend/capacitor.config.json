@@ -1,6 +1,6 @@
 {
   "appId": "com.safetrack.app",
-  "appName": "SafeTrack",
+  "appName": "BudgetPilot",
   "webDir": "dist",
   "server": {
     "url": "http://172.16.6.52:5173",

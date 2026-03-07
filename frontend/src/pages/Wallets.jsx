@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiPlus, FiEdit2, FiTrash2, FiBriefcase, FiCreditCard, FiSmartphone, FiDollarSign } from "react-icons/fi";
 import api from "../api";
+import PasswordGate from "../components/PasswordGate";
 import "./Wallets.css";
 
 const WALLET_TYPES = [
@@ -25,6 +26,7 @@ const Wallets = ({ user }) => {
     const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showPasswordGate, setShowPasswordGate] = useState(false);
     const [editingId, setEditingId] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -102,7 +104,7 @@ const Wallets = ({ user }) => {
                     <h1>Wallets 💳</h1>
                     <p>Manage your accounts, cards, and digital wallets.</p>
                 </div>
-                <button className="btn-primary flex-center" onClick={() => setShowModal(true)}>
+                <button className="btn-primary flex-center" onClick={() => setShowPasswordGate(true)}>
                     <FiPlus /> Add Wallet
                 </button>
             </header>
@@ -150,6 +152,14 @@ const Wallets = ({ user }) => {
                     ))
                 )}
             </div>
+
+            {showPasswordGate && (
+                <PasswordGate
+                    title="Add Wallet"
+                    onSuccess={() => { setShowPasswordGate(false); setShowModal(true); }}
+                    onCancel={() => setShowPasswordGate(false)}
+                />
+            )}
 
             {showModal && (
                 <div className="modal-overlay">

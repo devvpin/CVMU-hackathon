@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiSend } from "react-icons/fi";
 import api from "../api";
+import PasswordGate from "../components/PasswordGate";
 import "./Transfers.css";
 
 const Transfers = ({ user }) => {
+    const navigate = useNavigate();
+    const [unlocked, setUnlocked] = useState(false);
     const [wallets, setWallets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -69,6 +73,16 @@ const Transfers = ({ user }) => {
             setSubmitting(false);
         }
     };
+
+    if (!unlocked) {
+        return (
+            <PasswordGate
+                title="Wallet Transfers"
+                onSuccess={() => setUnlocked(true)}
+                onCancel={() => navigate(-1)}
+            />
+        );
+    }
 
     if (loading) {
         return (
