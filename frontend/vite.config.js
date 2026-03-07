@@ -8,6 +8,9 @@ export default defineConfig({
     // Expose on all interfaces so Android phone on same Wi-Fi can reach this dev server
     host: '0.0.0.0',
     port: 5173,
+    headers: {
+      'Service-Worker-Allowed': '/  ',
+    },
     proxy: {
       // Forward /api calls to the backend (works in browser and via live reload on mobile)
       "/api": {

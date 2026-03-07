@@ -288,173 +288,168 @@ const Expense = ({ user }) => {
                 </div>
             </div>
 
-            {/* Category Grid */}
-            <h3 style={{ marginBottom: '1rem' }}>Add New Expense</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ marginBottom: "1rem" }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Add New Expense</h3>
-                </div>
-                <div className="expense-categories-grid">
-                    {EXPENSE_CATEGORIES.map(cat => (
-                        <button
-                            key={cat.id}
-                            className="category-btn"
-                            onClick={() => {
-                                setFormData({ ...formData, category: cat.id, walletId: wallets.length > 0 ? wallets[0].id : "" });
-                                setShowModal(true);
-                            }}
-                        >
-                            <span className="category-icon text-danger">{cat.icon}</span>
-                            <span className="category-label">{cat.label}</span>
-                        </button>
-                    ))}
-                </div>
+            {/* Category selection - horizontal scroll row */}
+            <h3 style={{ marginBottom: '1rem', marginTop: '2rem' }}>Add New Expense</h3>
+            <div className="expense-categories-grid">
+                {EXPENSE_CATEGORIES.map(cat => (
+                    <button
+                        key={cat.id}
+                        className="category-btn glass-panel"
+                        onClick={() => {
+                            setFormData({ ...formData, category: cat.id, walletId: wallets.length > 0 ? wallets[0].id : "" });
+                            setShowModal(true);
+                        }}
+                    >
+                        <span className="category-icon text-danger">{cat.icon}</span>
+                        <span className="category-label">{cat.label}</span>
+                    </button>
+                ))}
+            </div>
 
-
-                <div className="card glass-panel expense-list-container">
-                    <h3>Expense History</h3>
-                    {loading ? (
-                        <div className="flex-center" style={{ padding: "2rem" }}>Loading...</div>
-                    ) : expenses.length === 0 ? (
-                        <div className="flex-center text-muted" style={{ padding: "2rem" }}>No expenses logged yet.</div>
-                    ) : (
-                        <div className="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {expenses.map((t) => (
-                                <div key={t.id} className="transaction-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', borderRadius: '12px', background: 'var(--color-bg-primary)', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.02)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <div className="category-icon-bg" style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                                            {EXPENSE_CATEGORIES.find(c => c.id === t.category)?.icon || '💸'}
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontWeight: '600', color: 'var(--color-text-primary)' }}>{t.category}</span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                                                <span>
-                                                    {t.category === 'Food' && t.metadata?.restaurant ? t.metadata.restaurant :
-                                                        t.category === 'Travel' && t.metadata?.destination ? `${t.metadata.transportType} to ${t.metadata.destination}` :
-                                                            (t.category === 'Bills' || t.category === 'EMI / Loan') && t.metadata?.billProvider ? t.metadata.billProvider : t.note}
-                                                </span>
-                                                {t.recurring && <span className="text-danger" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>↻ {t.recurringType}</span>}
-                                            </div>
+            <div className="card glass-panel expense-list-container">
+                <h3>Expense History</h3>
+                {loading ? (
+                    <div className="flex-center" style={{ padding: "2rem" }}>Loading...</div>
+                ) : expenses.length === 0 ? (
+                    <div className="flex-center text-muted" style={{ padding: "2rem" }}>No expenses logged yet.</div>
+                ) : (
+                    <div className="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {expenses.map((t) => (
+                            <div key={t.id} className="transaction-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', borderRadius: '12px', background: 'var(--color-bg-primary)', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.02)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div className="category-icon-bg" style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                                        {EXPENSE_CATEGORIES.find(c => c.id === t.category)?.icon || '💸'}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontWeight: '600', color: 'var(--color-text-primary)' }}>{t.category}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                                            <span>
+                                                {t.category === 'Food' && t.metadata?.restaurant ? t.metadata.restaurant :
+                                                    t.category === 'Travel' && t.metadata?.destination ? `${t.metadata.transportType} to ${t.metadata.destination}` :
+                                                        (t.category === 'Bills' || t.category === 'EMI / Loan') && t.metadata?.billProvider ? t.metadata.billProvider : t.note}
+                                            </span>
+                                            {t.recurring && <span style={{ background: 'var(--color-danger)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>↻ {t.recurringType}</span>}
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '100px' }}>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</span>
-                                            <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{new Date(t.date).toLocaleDateString()}</span>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px' }}>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wallet</span>
-                                            <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{t.walletId ? wallets.find(w => w.id === t.walletId)?.name || 'Unknown' : '-'}</span>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px', alignItems: 'flex-end' }}>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</span>
-                                            <span className="text-danger" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>-₹{Number(t.amount).toLocaleString()}</span>
-                                        </div>
-                                        <button className="btn-icon" onClick={() => handleDelete(t.id)} style={{ color: 'var(--color-text-secondary)', padding: '0.5rem', opacity: 0.6, marginLeft: '0.5rem' }}>
-                                            <FiTrash2 size={16} />
-                                        </button>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'flex-end' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '100px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</span>
+                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{new Date(t.date).toLocaleDateString()}</span>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {showModal && (
-                    <div className="modal-overlay">
-                        <div className="modal card glass-panel">
-                            <h3>Add Expense 💸</h3>
-                            <form className="modal-form" onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label>Category</label>
-                                    <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
-                                        {EXPENSE_CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
-                                    </select>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Amount (₹)</label>
-                                    <input type="number" step="0.01" min="0" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Date</label>
-                                    <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Paid From</label>
-                                    <select value={formData.walletId} onChange={(e) => setFormData({ ...formData, walletId: e.target.value })} required>
-                                        <option value="" disabled>Select a Wallet</option>
-                                        {wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                                    </select>
-                                </div>
-
-                                {/* DYNAMIC CATEGORY FIELDS */}
-                                {formData.category === "Food" && (
-                                    <div className="form-group">
-                                        <label>Restaurant / Store</label>
-                                        <input type="text" value={formData.restaurant} onChange={(e) => setFormData({ ...formData, restaurant: e.target.value })} required />
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wallet</span>
+                                        <span style={{ fontSize: '0.9rem', color: 'var(--color-text-primary)' }}>{t.walletId ? wallets.find(w => w.id === t.walletId)?.name || 'Unknown' : '-'}</span>
                                     </div>
-                                )}
-
-                                {formData.category === "Travel" && (
-                                    <>
-                                        <div className="form-group">
-                                            <label>Transport Type</label>
-                                            <select value={formData.transportType} onChange={(e) => setFormData({ ...formData, transportType: e.target.value })}>
-                                                <option value="uber">Uber / Cab</option>
-                                                <option value="bus">Bus</option>
-                                                <option value="train">Train</option>
-                                                <option value="flight">Flight</option>
-                                            </select>
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Destination</label>
-                                            <input type="text" value={formData.destination} onChange={(e) => setFormData({ ...formData, destination: e.target.value })} required />
-                                        </div>
-                                    </>
-                                )}
-
-                                {(formData.category === "Bills" || formData.category === "EMI / Loan" || formData.category === "Rent") && (
-                                    <div className="form-group">
-                                        <label>Provider / Name</label>
-                                        <input type="text" value={formData.billProvider} onChange={(e) => setFormData({ ...formData, billProvider: e.target.value })} required />
+                                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: '120px', alignItems: 'flex-end' }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</span>
+                                        <span className="text-danger" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>-₹{Number(t.amount).toLocaleString()}</span>
                                     </div>
-                                )}
-
-                                <div className="form-group">
-                                    <label>General Note (Optional)</label>
-                                    <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} />
+                                    <button className="btn-icon text-danger" onClick={() => handleDelete(t.id)} style={{ padding: '0.5rem', opacity: 0.8, marginLeft: '0.5rem' }}>
+                                        <FiTrash2 size={16} />
+                                    </button>
                                 </div>
-
-                                {/* RECURRING OPTIONS */}
-                                <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
-                                    <input type="checkbox" id="recurring-checkbox" checked={formData.recurring} onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })} style={{ width: 'auto' }} />
-                                    <label htmlFor="recurring-checkbox" style={{ margin: 0 }}>This is a recurring expense</label>
-                                </div>
-
-                                {formData.recurring && (
-                                    <div className="form-group">
-                                        <label>Repeats every</label>
-                                        <select value={formData.recurringType} onChange={(e) => setFormData({ ...formData, recurringType: e.target.value })}>
-                                            <option value="weekly">Week</option>
-                                            <option value="monthly">Month</option>
-                                            <option value="yearly">Year</option>
-                                        </select>
-                                    </div>
-                                )}
-
-                                <div className="modal-actions">
-                                    <button type="button" className="btn-text" onClick={closeModal}>Cancel</button>
-                                    <button type="submit" className="btn-primary">Save Expense</button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
-            );
+
+            {showModal && (
+                <div className="modal-overlay">
+                    <div className="modal card glass-panel">
+                        <h3>Add Expense 💸</h3>
+                        <form className="modal-form" onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>Category</label>
+                                <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}>
+                                    {EXPENSE_CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Amount (₹)</label>
+                                <input type="number" step="0.01" min="0" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Date</label>
+                                <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Paid From</label>
+                                <select value={formData.walletId} onChange={(e) => setFormData({ ...formData, walletId: e.target.value })} required>
+                                    <option value="" disabled>Select a Wallet</option>
+                                    {wallets.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+                                </select>
+                            </div>
+
+                            {/* DYNAMIC CATEGORY FIELDS */}
+                            {formData.category === "Food" && (
+                                <div className="form-group">
+                                    <label>Restaurant / Store</label>
+                                    <input type="text" value={formData.restaurant} onChange={(e) => setFormData({ ...formData, restaurant: e.target.value })} required />
+                                </div>
+                            )}
+
+                            {formData.category === "Travel" && (
+                                <>
+                                    <div className="form-group">
+                                        <label>Transport Type</label>
+                                        <select value={formData.transportType} onChange={(e) => setFormData({ ...formData, transportType: e.target.value })}>
+                                            <option value="uber">Uber / Cab</option>
+                                            <option value="bus">Bus</option>
+                                            <option value="train">Train</option>
+                                            <option value="flight">Flight</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Destination</label>
+                                        <input type="text" value={formData.destination} onChange={(e) => setFormData({ ...formData, destination: e.target.value })} required />
+                                    </div>
+                                </>
+                            )}
+
+                            {(formData.category === "Bills" || formData.category === "EMI / Loan" || formData.category === "Rent") && (
+                                <div className="form-group">
+                                    <label>Provider / Name</label>
+                                    <input type="text" value={formData.billProvider} onChange={(e) => setFormData({ ...formData, billProvider: e.target.value })} required />
+                                </div>
+                            )}
+
+                            <div className="form-group">
+                                <label>General Note (Optional)</label>
+                                <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} />
+                            </div>
+
+                            {/* RECURRING OPTIONS */}
+                            <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                                <input type="checkbox" id="recurring-checkbox" checked={formData.recurring} onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })} style={{ width: 'auto' }} />
+                                <label htmlFor="recurring-checkbox" style={{ margin: 0 }}>This is a recurring expense</label>
+                            </div>
+
+                            {formData.recurring && (
+                                <div className="form-group">
+                                    <label>Repeats every</label>
+                                    <select value={formData.recurringType} onChange={(e) => setFormData({ ...formData, recurringType: e.target.value })}>
+                                        <option value="weekly">Week</option>
+                                        <option value="monthly">Month</option>
+                                        <option value="yearly">Year</option>
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-text text-danger-btn" onClick={closeModal}>Cancel</button>
+                                <button type="submit" className="btn-primary">Save Expense</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 
-            export default Expense;
+export default Expense;

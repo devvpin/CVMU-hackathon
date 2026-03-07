@@ -6,7 +6,7 @@ const router = express.Router();
 // Initialize the Google Gen AI client with the API key from environment
 // We initialize it lazily or check if the key exists to prevent server crashes on startup
 export const getAiClient = () => {
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+    if (!process.env.GEMINI_API_KEY) {
         return null; // Key hasn't been configured yet
     }
     return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -25,7 +25,7 @@ router.post('/categorize', async (req, res) => {
             return res.status(400).json({ error: 'Text input is required' });
         }
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+        if (!process.env.GEMINI_API_KEY) {
             return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
         }
 
@@ -79,7 +79,7 @@ router.post('/scan-receipt', async (req, res) => {
             return res.status(400).json({ error: 'Image data and mimeType are required' });
         }
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+        if (!process.env.GEMINI_API_KEY) {
             return res.status(503).json({ error: 'AI Service is not configured (Missing API Key)' });
         }
 
@@ -136,7 +136,7 @@ router.post('/insights', async (req, res) => {
     try {
         const { transactions, budgets } = req.body;
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'AIzaSyDNoA1o2B-eZm0xGoIweAbCt4g6P9KC6EY') {
+        if (!process.env.GEMINI_API_KEY) {
             return res.status(200).json({
                 insight: 'Welcome! To unlock an AI Financial Coach, please provide a Gemini API Key in your backend.'
             });

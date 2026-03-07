@@ -191,7 +191,7 @@ const Wallets = ({ user }) => {
                                 />
                             </div>
                             <div className="modal-actions">
-                                <button type="button" className="btn-text" onClick={closeModal}>
+                                <button type="button" className="btn-text text-danger-btn" onClick={closeModal}>
                                     Cancel
                                 </button>
                                 <button type="submit" className="btn-primary">

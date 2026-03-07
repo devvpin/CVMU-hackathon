@@ -9,11 +9,8 @@ const INCOME_CATEGORIES = ["Salary", "Earned Extra", "Freelance", "Someone Gifte
 
 const Transactions = ({ user }) => {
     const [transactions, setTransactions] = useState([]);
-<<<<<<< HEAD
     const [wallets, setWallets] = useState([]);
-=======
     const [budgets, setBudgets] = useState([]);
->>>>>>> 1ce804a6076113f2af23cde0356255425226b378
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [popup, setPopup] = useState({ visible: false, message: '' });
@@ -51,21 +48,14 @@ const Transactions = ({ user }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-<<<<<<< HEAD
-                const [transRes, walletsRes] = await Promise.all([
+                const [transRes, walletsRes, budgetsRes] = await Promise.all([
                     api.get("/transactions"),
-                    api.get("/wallets")
-                ]);
-                setTransactions(transRes.data);
-                setWallets(walletsRes.data);
-=======
-                const [transRes, budgetsRes] = await Promise.all([
-                    api.get("/transactions"),
+                    api.get("/wallets"),
                     api.get("/budgets")
                 ]);
                 setTransactions(transRes.data);
+                setWallets(walletsRes.data);
                 setBudgets(budgetsRes.data);
->>>>>>> 1ce804a6076113f2af23cde0356255425226b378
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -594,7 +584,7 @@ const Transactions = ({ user }) => {
                             <div className="modal-actions">
                                 <button
                                     type="button"
-                                    className="btn-text"
+                                    className="btn-text text-danger-btn"
                                     onClick={() => setShowModal(false)}
                                 >
                                     Never mind

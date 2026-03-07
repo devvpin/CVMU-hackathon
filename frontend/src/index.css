@@ -283,6 +283,15 @@ select option {
   box-shadow: var(--shadow-sm);
 }
 
+.text-danger-btn {
+  color: var(--color-danger) !important;
+  font-weight: 600;
+}
+
+.text-danger-btn:hover {
+  background-color: var(--color-danger-bg) !important;
+}
+
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-1px);

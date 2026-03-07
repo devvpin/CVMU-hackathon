@@ -189,7 +189,7 @@ const Profile = ({ user }) => {
           </button>
         ) : (
           <div className="edit-actions">
-            <button className="btn-secondary" onClick={handleCancel}>
+            <button className="btn-secondary text-danger-btn" onClick={handleCancel}>
               <FiX /> Cancel
             </button>
             <button className="btn-primary" onClick={handleSave} disabled={loading}>

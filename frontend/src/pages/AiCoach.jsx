@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api, { aiCategorize, aiGetInsights } from "../api";
+import { FiMic } from "react-icons/fi";
 import "./AiCoach.css";
 
 const AiCoach = () => {
@@ -10,8 +11,45 @@ const AiCoach = () => {
 
   const [isInsightLoading, setIsInsightLoading] = useState(true);
   const [insight, setInsight] = useState("");
+  const [isListening, setIsListening] = useState(false);
 
   const canCategorize = useMemo(() => text.trim().length > 0, [text]);
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Sorry, your browser doesn't support the Speech Recognition API. Try using Chrome.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setText(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+      if (event.error !== 'no-speech') {
+        alert(`Microphone error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   useEffect(() => {
     const fetchInsight = async () => {
@@ -59,15 +97,23 @@ const AiCoach = () => {
   const onCreateTransaction = async () => {
     if (!result) return;
     try {
+      const expenseAmount = Number(result.amount);
       await api.post("/transactions", {
-        amount: Number(result.amount),
-        category: result.category,
-        description: result.description,
-        type: result.type,
+        amount: expenseAmount,
+        category: result.category || (result.type === "expense" ? "Other" : "Other Income"),
+        note: result.note || "",
+        type: result.type || "expense",
         date: new Date().toISOString().slice(0, 10),
       });
+
+      if (result.type === "expense" && expenseAmount >= 500) {
+        import("../utils/notifications").then(({ sendBudgetAlert }) => {
+          sendBudgetAlert(expenseAmount, result.category || "Other");
+        });
+      }
+
       setCatError("");
-      alert("Transaction created!");
+      alert("Transaction successfully logged to your History!");
     } catch (e) {
       console.error("Create transaction failed:", e);
       alert("Could not create transaction.");
@@ -93,9 +139,29 @@ const AiCoach = () => {
               rows={4}
               placeholder='e.g. "Paid ₹4500 rent" or "Got salary ₹52000"'
             />
-            <button className="btn-primary" type="submit" disabled={!canCategorize || isCatLoading}>
-              {isCatLoading ? "Categorizing..." : "Categorize"}
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={handleVoiceInput}
+                disabled={isCatLoading}
+                style={{
+                  flex: '0 0 auto',
+                  backgroundColor: isListening ? 'var(--color-danger)' : 'var(--color-bg-tertiary)',
+                  color: isListening ? '#fff' : 'var(--color-text-primary)',
+                  border: '1px solid var(--border-subtle)',
+                  transition: 'all 0.2s ease',
+                  padding: '0 1rem',
+                  borderRadius: 'var(--radius-md)'
+                }}
+                title="Use Voice Input"
+              >
+                <FiMic size={20} />
+              </button>
+              <button className="btn-primary" type="submit" disabled={!canCategorize || isCatLoading} style={{ flex: 1 }}>
+                {isCatLoading ? "Categorizing..." : "Categorize"}
+              </button>
+            </div>
           </form>
 
           {catError && <div className="ai-error">{catError}</div>}

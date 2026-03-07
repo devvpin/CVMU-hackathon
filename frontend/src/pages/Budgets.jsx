@@ -135,6 +135,7 @@ const Budgets = ({ user }) => {
                       className="btn-icon text-danger"
                       onClick={() => handleDelete(budget.id)}
                       title="Delete Budget"
+                      style={{ color: 'var(--color-danger)' }}
                     >
                       <FiTrash2 />
                     </button>
@@ -217,7 +218,7 @@ const Budgets = ({ user }) => {
                 <div className="modal-actions">
                   <button
                     type="button"
-                    className="btn-text"
+                    className="btn-text text-danger-btn"
                     onClick={() => setShowModal(false)}
                   >
                     Never mind

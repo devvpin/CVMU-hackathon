@@ -327,7 +327,7 @@ const Income = ({ user }) => {
                                                     t.category === 'Rental Income' ? t.metadata?.property :
                                                         t.category === 'Business Profit' ? t.metadata?.source : t.note}
                                             </span>
-                                            {t.recurring && <span className="text-accent" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>↻ {t.recurringType}</span>}
+                                            {t.recurring && <span style={{ background: 'var(--color-success)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>↻ {t.recurringType}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -344,7 +344,7 @@ const Income = ({ user }) => {
                                         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</span>
                                         <span className="text-success" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>+₹{Number(t.amount).toLocaleString()}</span>
                                     </div>
-                                    <button className="btn-icon" onClick={() => handleDelete(t.id)} style={{ color: 'var(--color-text-secondary)', padding: '0.5rem', opacity: 0.6, marginLeft: '0.5rem' }}>
+                                    <button className="btn-icon text-danger" onClick={() => handleDelete(t.id)} style={{ padding: '0.5rem', opacity: 0.8, marginLeft: '0.5rem' }}>
                                         <FiTrash2 size={16} />
                                     </button>
                                 </div>
@@ -435,7 +435,7 @@ const Income = ({ user }) => {
                             )}
 
                             <div className="modal-actions">
-                                <button type="button" className="btn-text" onClick={closeModal}>Cancel</button>
+                                <button type="button" className="btn-text text-danger-btn" onClick={closeModal}>Cancel</button>
                                 <button type="submit" className="btn-primary">Save Income</button>
                             </div>
                         </form>
