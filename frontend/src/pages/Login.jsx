@@ -31,7 +31,7 @@ const Login = () => {
       {/* Left Decoration Panel */}
       <div className="auth-background">
         <div className="auth-background-content">
-          <h1>Welcome to MoneyMate</h1>
+          <h1>Welcome to BudgetPilot</h1>
           <p>The smartest and simplest way to manage your personal finances, track your budgets, and achieve your goals.</p>
         </div>
         <div className="floating-shape shape-1"></div>
@@ -99,7 +99,7 @@ const Login = () => {
 
           <div className="auth-footer">
             <p>
-              New to MoneyMate? <Link to="/signup" className="highlight-link">Create an account</Link>
+              New to BudgetPilot? <Link to="/signup" className="highlight-link">Create an account</Link>
             </p>
           </div>
         </div>

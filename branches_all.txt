@@ -1,0 +1,7 @@
+﻿* main
+  remotes/origin/Edit-profile-page
+  remotes/origin/Fix-Expense-Page
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+  remotes/origin/meera
+  remotes/origin/parv

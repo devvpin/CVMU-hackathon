@@ -85,7 +85,7 @@ const Layout = ({ user }) => {
             {sidebarOpen ? <FiX /> : <FiMenu />}
           </button>
           <h2>
-            💰 Money<span className="text-accent">Mate</span>
+            💰 Budget<span className="text-accent">Pilot</span>
           </h2>
         </div>
         <button
@@ -109,7 +109,7 @@ const Layout = ({ user }) => {
       <aside className={`sidebar card glass-panel ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="brand flex-between">
           <h2>
-            💰 Money<span className="text-accent">Mate</span>
+            💰 Budget<span className="text-accent">Pilot</span>
           </h2>
           <button
             className="theme-toggle-btn"

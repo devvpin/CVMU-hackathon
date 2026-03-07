@@ -1,4 +1,4 @@
-# MoneyMate (CVMU Hackathon) — Web App
+# BudgetPilot (CVMU Hackathon) — Web App
 
 This repository contains a **full-stack web app**:
 - **Frontend**: React + Vite (`frontend/`)
