@@ -1,0 +1,22 @@
+﻿On branch main
+Your branch is behind 'origin/main' by 1 commit, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   backend/index.js
+	modified:   backend/routes/ai.js
+	modified:   frontend/src/pages/Expense.jsx
+	modified:   frontend/src/pages/Income.jsx
+	modified:   frontend/src/pages/Transactions.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	backend/output.txt
+	backend/test-genai.js
+	backend/test-simple.js
+	branches.txt
+	status.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")

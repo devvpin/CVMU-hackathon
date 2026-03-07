@@ -90,7 +90,8 @@ const Expense = ({ user }) => {
             setShowModal(true);
         } catch (error) {
             console.error("API Error categorization:", error);
-            alert("Oops! Couldn't parse that.");
+            const msg = error.response?.data?.error || "Oops! Couldn't parse that.";
+            alert(msg);
         } finally {
             setIsAiLoading(false);
             setSmartText("");
@@ -148,7 +149,8 @@ const Expense = ({ user }) => {
                     setShowModal(true);
                 } catch (apiError) {
                     console.error("API Error:", apiError);
-                    alert("Couldn't scan that receipt.");
+                    const msg = apiError.response?.data?.error || "Couldn't scan that receipt.";
+                    alert(msg);
                 } finally {
                     setIsAiLoading(false);
                     if (fileInputRef.current) fileInputRef.current.value = "";

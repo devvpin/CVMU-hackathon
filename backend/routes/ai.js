@@ -6,7 +6,7 @@ const router = express.Router();
 // Initialize the Google Gen AI client with the API key from environment
 // We initialize it lazily or check if the key exists to prevent server crashes on startup
 export const getAiClient = () => {
-    const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+    const apiKey = (process.env.GEMINI_API_KEY || 'AIzaSyAMBUjCNRIpsPXjUD1HE7KBY9eKvvXf0cA').trim();
 
     if (!apiKey) {
         console.warn('GEMINI_API_KEY not configured or empty after trim');
@@ -66,7 +66,7 @@ router.post('/categorize', async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         console.error('Error in AI categorization:', error);
-        res.status(500).json({ error: 'Failed to process AI categorization' });
+        res.status(500).json({ error: error.message || 'Failed to process AI categorization' });
     }
 });
 
@@ -128,7 +128,7 @@ router.post('/scan-receipt', async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         console.error('Error scanning receipt:', error);
-        res.status(500).json({ error: 'Failed to scan receipt' });
+        res.status(500).json({ error: error.message || 'Failed to scan receipt' });
     }
 });
 
